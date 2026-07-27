@@ -42,5 +42,34 @@ RUN sed -i 's!/var/www/html!/var/www/html/backend/public!g' /etc/apache2/sites-a
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
 
-EXPOSE 80
-CMD ["apache2-foreground"]
+# Create startup script with migrations inline
+RUN echo '#!/bin/bash\n\
+set -e\n\
+echo "🚀 Starting container..."\n\
+cd /var/www/html/backend\n\
+if [ -n "$DB_HOST" ] && [ -n "$DB_DATABASE" ]; then\n\
+    echo "⏳ Waiting for database to be ready..."\n\
+    ATTEMPTS=0\n\
+    MAX_ATTEMPTS=30\n\
+    until php artisan db:show > /dev/null 2>&1 || [ $ATTEMPTS -eq $MAX_ATTEMPTS ]; do\n\
+        ATTEMPTS=$((ATTEMPTS + 1))\n\
+        echo "⏳ Waiting for database... (attempt $ATTEMPTS/$MAX_ATTEMPTS)"\n\
+        sleep 2\n\
+    done\n\
+    echo "🗄️ Running database migrations..."\n\
+    php artisan migrate --force\n\
+    echo "✅ Migrations completed successfully!"\n\
+else\n\
+    echo "⚠️ Database environment variables not set. Skipping migrations."\n\
+fi\n\
+if [ "$APP_ENV" = "production" ]; then\n\
+    echo "⚙️ Caching configurations..."\n\
+    php artisan config:cache\n\
+    php artisan route:cache\n\
+    php artisan view:cache\n\
+fi\n\
+echo "✅ Starting Apache..."\n\
+exec apache2-foreground' > /usr/local/bin/startup.sh \
+    && chmod +x /usr/local/bin/startup.sh
+
+ENTRYPOINT ["/usr/local/bin/startup.sh"]
