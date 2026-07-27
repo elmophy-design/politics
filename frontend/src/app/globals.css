@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+/*
+  Design tokens — Lucky Eseigbe Platform
+  ---------------------------------------
+  Deep bottle green, crisp white, and ceremonial gold — a civic palette
+  with real weight behind it, built for a platform that spans campaign
+  trail and constituency governance alike.
+*/
+@theme {
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-body: "Public Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  /* Deep bottle green — brand anchor: headings, primary buttons, dark sections */
+  --color-ink-950: #041b10;
+  --color-ink-900: #0a3620;
+  --color-ink-800: #12482c;
+  --color-ink-600: #2f6b47;
+
+  /* Crisp white / near-white — page backgrounds and cards */
+  --color-parchment-50: #ffffff;
+  --color-parchment-100: #f3f7f4;
+  --color-parchment-200: #e6eee9;
+
+  /* Vivid action green — CTAs, links, "go" actions (distinct from the deep brand green above) */
+  --color-forest-700: #0e6b34;
+  --color-forest-600: #158a42;
+  --color-forest-500: #1fa352;
+
+  /* Ceremonial gold — accents, highlights, premium touches */
+  --color-gold-600: #9c7a1e;
+  --color-gold-500: #c9a227;
+  --color-gold-300: #e3c766;
+
+  /* Alert red — incidents, errors, flagged items */
+  --color-clay-600: #9c3f26;
+  --color-clay-500: #b54a2e;
+
+  --color-graphite-700: #1e2622;
+  --color-graphite-500: #55605a;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-parchment-50);
+  color: var(--color-graphite-700);
+  font-family: var(--font-body);
+}
+
+/* Signature hero texture: a faint dotted ward/polling-unit grid.
+   Referenced from the platform's own core data model rather than a stock pattern. */
+.ward-grid-texture {
+  background-image: radial-gradient(var(--color-ink-900) 1px, transparent 1px);
+  background-size: 22px 22px;
+  opacity: 0.06;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
