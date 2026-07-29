@@ -59,6 +59,38 @@ body {
   opacity: 0.06;
 }
 
+/* Hero credential slider: a slow, ceremonial crossfade-and-rise —
+   deliberately understated, no bounce or overshoot. */
+@keyframes credential-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes credential-icon-in {
+  from {
+    opacity: 0;
+    transform: scale(0.85) rotate(-6deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.credential-slide-in {
+  animation: credential-slide-in 500ms ease-out both;
+}
+
+.credential-icon-in {
+  animation: credential-icon-in 500ms ease-out both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.001ms !important;
