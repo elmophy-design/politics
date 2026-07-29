@@ -48,6 +48,7 @@ RUN echo '#!/bin/bash\n\
 set -e\n\
 echo "🚀 Starting container..."\n\
 cd /var/www/html/backend\n\
+php artisan storage:link || true\n\
 if [ -z "$APP_KEY" ]; then\n\
     echo "❌ APP_KEY is not set. Set it in Render environment variables (php artisan key:generate --show)."\n\
     exit 1\n\
