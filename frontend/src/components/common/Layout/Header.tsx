@@ -47,15 +47,6 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="hidden lg:block">
-          <Link
-            href="/donations"
-            className="rounded-sm bg-forest-600 px-5 py-2.5 text-sm font-medium text-parchment-50 transition-colors hover:bg-forest-700"
-          >
-            Support the Campaign
-          </Link>
-        </div>
-
         <button
           type="button"
           className="lg:hidden"
@@ -86,14 +77,6 @@ export function Header() {
                 </Link>
               </li>
             ))}
-            <li className="py-3">
-              <Link
-                href="/donations"
-                className="inline-block rounded-sm bg-forest-600 px-5 py-2.5 text-sm font-medium text-parchment-50"
-              >
-                Support the Campaign
-              </Link>
-            </li>
           </ul>
         </div>
       </nav>
