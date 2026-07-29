@@ -80,12 +80,12 @@ export function Header() {
               const isDonations = item.label === "Donations";
               
               return (
-                <li key={item.href}>
+                <li key={item.href} className={cn(isDonations && "mt-2")}>
                   <Link
                     href={item.href}
                     className={cn(
                       "block py-3 text-sm text-graphite-700",
-                      isDonations && "mt-2 inline-block rounded-sm bg-forest-600 px-5 py-2.5 font-medium text-parchment-50 hover:bg-forest-700"
+                      isDonations && "rounded-sm bg-forest-600 px-5 py-2.5 text-center font-medium text-parchment-50 hover:bg-forest-700"
                     )}
                     onClick={() => setOpen(false)}
                   >
