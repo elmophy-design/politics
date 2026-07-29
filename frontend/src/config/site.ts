@@ -4,7 +4,7 @@ export const siteConfig = {
   tagline: "Serving the constituency with integrity, transparency, and action.",
   foundationName: "Lucky Eseigbe Foundation",
   primaryNav: [
-    { label: "Homepage", href: "/" },
+    { label: "Home", href: "/" },
     { label: "About", href: "/about/biography" },
     { label: "Manifesto", href: "/manifesto" },
     { label: "Gallery", href: "/gallery" },
