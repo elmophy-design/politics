@@ -89,7 +89,10 @@ body {
     transform: translateX(0);
   }
 }
-
+.banner {
+  background-color: #FFD700; /* Gold */
+  color: #000000; /* Adjust text color for contrast if needed */
+}
 .credential-icon-in {
   animation: credential-icon-in 650ms cubic-bezier(0.22, 1, 0.36, 1) 80ms both;
 }
