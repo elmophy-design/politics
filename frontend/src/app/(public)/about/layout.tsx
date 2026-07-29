@@ -17,7 +17,7 @@ export default function AboutLayout({
           aria-hidden="true"
           width={900}
           height={900}
-          className="w-[600px] max-w-none opacity-[0.08] sm:w-[750px] lg:w-[900px]"
+          className="w-[600px] max-w-none opacity-[0.04] sm:w-[750px] lg:w-[900px]"
           priority={false}
         />
       </div>
