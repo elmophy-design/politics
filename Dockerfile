@@ -43,11 +43,16 @@ RUN sed -i 's!/var/www/html!/var/www/html/backend/public!g' /etc/apache2/sites-a
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
 
-# Create startup script with migrations inline
+# Create startup script with migrations + seeding inline
 RUN echo '#!/bin/bash\n\
 set -e\n\
 echo "🚀 Starting container..."\n\
 cd /var/www/html/backend\n\
+php artisan storage:link || true\n\
+if [ -z "$APP_KEY" ]; then\n\
+    echo "❌ APP_KEY is not set. Set it in Render environment variables (php artisan key:generate --show)."\n\
+    exit 1\n\
+fi\n\
 if [ -n "$DB_HOST" ] && [ -n "$DB_DATABASE" ]; then\n\
     echo "⏳ Waiting for database to be ready..."\n\
     ATTEMPTS=0\n\
@@ -60,8 +65,11 @@ if [ -n "$DB_HOST" ] && [ -n "$DB_DATABASE" ]; then\n\
     echo "🗄️ Running database migrations..."\n\
     php artisan migrate --force\n\
     echo "✅ Migrations completed successfully!"\n\
+    echo "🌱 Seeding roles, permissions, and admin user..."\n\
+    php artisan db:seed --force\n\
+    echo "✅ Seeding completed successfully!"\n\
 else\n\
-    echo "⚠️ Database environment variables not set. Skipping migrations."\n\
+    echo "⚠️ Database environment variables not set. Skipping migrations and seeding."\n\
 fi\n\
 if [ "$APP_ENV" = "production" ]; then\n\
     echo "⚙️ Caching configurations..."\n\

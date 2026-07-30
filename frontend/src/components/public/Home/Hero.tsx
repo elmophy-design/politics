@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { apiFetch } from "@/lib/api/client";
+import { CredentialSlider } from "./CredentialSlider";
 
 type HeroSettings = {
   home_hero_eyebrow?: string;
@@ -63,6 +64,8 @@ export function Hero() {
       )}
 
       <div className="relative mx-auto max-w-6xl px-6 py-24 lg:py-32">
+        <CredentialSlider variant={hasBackground ? "dark" : "light"} />
+
         <p
           className={`font-mono text-xs uppercase tracking-[0.24em] ${
             hasBackground ? "text-gold-300" : "text-forest-600"

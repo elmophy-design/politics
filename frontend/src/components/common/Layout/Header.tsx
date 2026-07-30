@@ -36,25 +36,26 @@ export function Header() {
         </Link>
 
         <nav className="hidden items-center gap-8 lg:flex">
-          {siteConfig.primaryNav.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="text-sm text-graphite-700 transition-colors hover:text-forest-600"
-            >
-              {item.label}
-            </Link>
-          ))}
+          {siteConfig.primaryNav.map((item) => {
+            // Check if this is the Donations link
+            const isDonations = item.label === "Donations";
+            
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "text-sm transition-colors hover:text-forest-600",
+                  isDonations 
+                    ? "rounded-sm bg-forest-600 px-5 py-2.5 font-medium text-parchment-50 hover:bg-forest-700" 
+                    : "text-graphite-700"
+                )}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
-
-        <div className="hidden lg:block">
-          <Link
-            href="/donations"
-            className="rounded-sm bg-forest-600 px-5 py-2.5 text-sm font-medium text-parchment-50 transition-colors hover:bg-forest-700"
-          >
-            Support the Campaign
-          </Link>
-        </div>
 
         <button
           type="button"
@@ -75,25 +76,24 @@ export function Header() {
       >
         <div className="min-h-0">
           <ul className="flex flex-col px-6 py-2">
-            {siteConfig.primaryNav.map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className="block py-3 text-sm text-graphite-700"
-                  onClick={() => setOpen(false)}
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-            <li className="py-3">
-              <Link
-                href="/donations"
-                className="inline-block rounded-sm bg-forest-600 px-5 py-2.5 text-sm font-medium text-parchment-50"
-              >
-                Support the Campaign
-              </Link>
-            </li>
+            {siteConfig.primaryNav.map((item) => {
+              const isDonations = item.label === "Donations";
+              
+              return (
+                <li key={item.href} className={cn(isDonations && "mt-2")}>
+                  <Link
+                    href={item.href}
+                    className={cn(
+                      "block py-3 text-sm text-graphite-700",
+                      isDonations && "rounded-sm bg-forest-600 px-5 py-2.5 text-center font-medium text-parchment-50 hover:bg-forest-700"
+                    )}
+                    onClick={() => setOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </div>
       </nav>
