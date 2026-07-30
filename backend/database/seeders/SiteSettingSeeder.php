@@ -36,6 +36,10 @@ class SiteSettingSeeder extends Seeder
                 'pillar_engagement_image' => '',
                 'pillar_engagement_href' => '/contact',
 
+                // CTA strip after Four Pillars / Impact stats
+                'home_cta_headline' => 'Join the movement, ward by ward.',
+                'home_cta_body' => 'Register as a volunteer, follow the campaign calendar, or support the work directly — every contribution is logged and accounted for.',
+                'home_cta_background_image' => '',
             ],
             'footer' => [
                 'social_facebook_url' => '',

@@ -75,6 +75,9 @@ type HomepageSettings = {
   pillar_engagement_description: string;
   pillar_engagement_image: string;
   pillar_engagement_href: string;
+  home_cta_headline: string;
+  home_cta_body: string;
+  home_cta_background_image: string;
 };
 
 const PILLAR_FIELDS: {
@@ -169,6 +172,7 @@ export default function AdminSettingsPage() {
   const [savedGroup, setSavedGroup] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [uploadingBg, setUploadingBg] = useState(false);
+  const [uploadingCtaBg, setUploadingCtaBg] = useState(false);
   const [uploadingPillar, setUploadingPillar] = useState<string | null>(null);
 
   useEffect(() => {
@@ -207,6 +211,11 @@ export default function AdminSettingsPage() {
             "Report an issue, request assistance, or send a suggestion directly — and track how it's resolved.",
           pillar_engagement_image: res?.pillar_engagement_image ?? "",
           pillar_engagement_href: res?.pillar_engagement_href ?? "/contact",
+          home_cta_headline: res?.home_cta_headline ?? "Join the movement, ward by ward.",
+          home_cta_body:
+            res?.home_cta_body ??
+            "Register as a volunteer, follow the campaign calendar, or support the work directly — every contribution is logged and accounted for.",
+          home_cta_background_image: res?.home_cta_background_image ?? "",
         })
       )
       .catch(() => setHomepage(null));
@@ -247,6 +256,25 @@ export default function AdminSettingsPage() {
       setErrors((e) => ({ ...e, homepage: err instanceof ApiError ? err.message : "Upload failed" }));
     } finally {
       setUploadingBg(false);
+    }
+  }
+
+  async function handleCtaBackgroundUpload(file: File) {
+    if (!homepage) return;
+    setUploadingCtaBg(true);
+    try {
+      const formData = new FormData();
+      formData.append("type", "gallery_image");
+      formData.append("title", "Homepage CTA Background");
+      formData.append("file", file);
+      const media = await apiFetch<{ file_path: string }>("/media", { method: "POST", body: formData });
+      const updated = { ...homepage, home_cta_background_image: media.file_path };
+      setHomepage(updated);
+      await saveGroup("homepage", updated);
+    } catch (err) {
+      setErrors((e) => ({ ...e, homepage: err instanceof ApiError ? err.message : "Upload failed" }));
+    } finally {
+      setUploadingCtaBg(false);
     }
   }
 
@@ -620,6 +648,68 @@ export default function AdminSettingsPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+
+          <div className="border-t border-ink-900/10 pt-4 space-y-4">
+            <div>
+              <p className="font-mono text-[11px] uppercase tracking-wide text-gold-600">
+                Call-to-Action Section
+              </p>
+              <p className="mt-1 text-xs text-graphite-500">
+                Closing strip after the Four Pillars / impact stats. Optional full-bleed
+                background image; when set, text switches to light-on-dark automatically.
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium uppercase tracking-wide text-graphite-500">
+                Headline
+              </label>
+              <input
+                value={homepage.home_cta_headline}
+                onChange={(e) =>
+                  setHomepage({ ...homepage, home_cta_headline: e.target.value })
+                }
+                className="mt-2 w-full rounded-sm border border-ink-900/15 bg-parchment-100 px-3 py-2 text-sm outline-none focus:border-forest-600"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium uppercase tracking-wide text-graphite-500">
+                Body
+              </label>
+              <textarea
+                rows={3}
+                value={homepage.home_cta_body}
+                onChange={(e) => setHomepage({ ...homepage, home_cta_body: e.target.value })}
+                className="mt-2 w-full rounded-sm border border-ink-900/15 bg-parchment-100 px-3 py-2 text-sm outline-none focus:border-forest-600"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium uppercase tracking-wide text-graphite-500">
+                Background Image
+              </label>
+              <ImagePreview
+                path={homepage.home_cta_background_image}
+                label="CTA background"
+                onClear={
+                  homepage.home_cta_background_image
+                    ? () => setHomepage({ ...homepage, home_cta_background_image: "" })
+                    : undefined
+                }
+              />
+              <input
+                type="file"
+                accept="image/*"
+                disabled={uploadingCtaBg}
+                onChange={(e) =>
+                  e.target.files?.[0] && handleCtaBackgroundUpload(e.target.files[0])
+                }
+                className="mt-2 w-full rounded-sm border border-ink-900/15 bg-parchment-100 px-3 py-2 text-sm outline-none focus:border-forest-600"
+              />
+              {uploadingCtaBg && <p className="mt-1 text-xs text-graphite-500">Uploading…</p>}
             </div>
           </div>
 
