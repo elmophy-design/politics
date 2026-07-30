@@ -40,6 +40,20 @@ export default function AdminContentPage() {
   const [timeline, setTimeline] = useState<TimelineItem[]>([]);
   const [uploadingPortrait, setUploadingPortrait] = useState(false);
 
+  // Constituency / Foundation / Contact page intros
+  const [constituencyEyebrow, setConstituencyEyebrow] = useState("Transparency Tracker");
+  const [constituencyTitle, setConstituencyTitle] = useState("Constituency Projects");
+  const [constituencyIntro, setConstituencyIntro] = useState("");
+  const [foundationEyebrow, setFoundationEyebrow] = useState("Lucky Eseigbe Foundation");
+  const [foundationTitle, setFoundationTitle] = useState("Impact beyond the campaign cycle.");
+  const [foundationIntro, setFoundationIntro] = useState("");
+  const [contactEyebrow, setContactEyebrow] = useState("Get in Touch");
+  const [contactTitle, setContactTitle] = useState("Reach the constituency office");
+  const [contactIntro, setContactIntro] = useState("");
+  const [contactAddress, setContactAddress] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
+
   const [savingGroup, setSavingGroup] = useState<string | null>(null);
   const [savedGroup, setSavedGroup] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -75,6 +89,48 @@ export default function AdminContentPage() {
         setBioIntro(res.biography_intro ?? "");
         setBioPortrait(res.biography_portrait_image ?? "");
         setTimeline(res.biography_timeline_json ? JSON.parse(res.biography_timeline_json) : []);
+      })
+      .catch(() => {});
+
+    apiFetch<{
+      constituency_page_eyebrow?: string;
+      constituency_page_title?: string;
+      constituency_page_intro?: string;
+    }>("/settings?group=content_constituency")
+      .then((res) => {
+        if (res.constituency_page_eyebrow) setConstituencyEyebrow(res.constituency_page_eyebrow);
+        if (res.constituency_page_title) setConstituencyTitle(res.constituency_page_title);
+        setConstituencyIntro(res.constituency_page_intro ?? "");
+      })
+      .catch(() => {});
+
+    apiFetch<{
+      foundation_page_eyebrow?: string;
+      foundation_page_title?: string;
+      foundation_page_intro?: string;
+    }>("/settings?group=content_foundation")
+      .then((res) => {
+        if (res.foundation_page_eyebrow) setFoundationEyebrow(res.foundation_page_eyebrow);
+        if (res.foundation_page_title) setFoundationTitle(res.foundation_page_title);
+        setFoundationIntro(res.foundation_page_intro ?? "");
+      })
+      .catch(() => {});
+
+    apiFetch<{
+      contact_page_eyebrow?: string;
+      contact_page_title?: string;
+      contact_page_intro?: string;
+      contact_office_address?: string;
+      contact_office_phone?: string;
+      contact_office_email?: string;
+    }>("/settings?group=content_contact")
+      .then((res) => {
+        if (res.contact_page_eyebrow) setContactEyebrow(res.contact_page_eyebrow);
+        if (res.contact_page_title) setContactTitle(res.contact_page_title);
+        setContactIntro(res.contact_page_intro ?? "");
+        setContactAddress(res.contact_office_address ?? "");
+        setContactPhone(res.contact_office_phone ?? "");
+        setContactEmail(res.contact_office_email ?? "");
       })
       .catch(() => {});
   }, []);
@@ -114,7 +170,7 @@ export default function AdminContentPage() {
     <div>
       <PageHeader eyebrow="Site Content" title="Articles & Pages" />
       <p className="mt-2 max-w-2xl text-sm text-graphite-500">
-        Edits here go live on the Manifesto, Vision &amp; Mission, Political Profile, and Biography pages immediately.
+        Edits here go live on Manifesto, Vision &amp; Mission, Political Profile, Biography, Constituency Projects, Foundation, and Contact pages immediately.
       </p>
 
       {/* Manifesto */}
@@ -293,6 +349,171 @@ export default function AdminContentPage() {
         {errors.content_biography && <p className="text-sm text-clay-600">{errors.content_biography}</p>}
         <SaveButton saving={savingGroup === "content_biography"} saved={savedGroup === "content_biography"} />
       </form>
+
+      {/* Constituency Projects page */}
+      <form
+        onSubmit={(e: FormEvent) => {
+          e.preventDefault();
+          saveGroup("content_constituency", {
+            constituency_page_eyebrow: constituencyEyebrow,
+            constituency_page_title: constituencyTitle,
+            constituency_page_intro: constituencyIntro,
+          });
+        }}
+        className="mt-6 max-w-2xl space-y-4 rounded-sm border border-ink-900/10 bg-parchment-50 p-6"
+      >
+        <p className="font-mono text-[11px] uppercase tracking-wide text-gold-600">
+          Constituency Projects Page
+        </p>
+        <div>
+          <label className="block text-xs font-medium uppercase tracking-wide text-graphite-500">Eyebrow</label>
+          <input
+            value={constituencyEyebrow}
+            onChange={(e) => setConstituencyEyebrow(e.target.value)}
+            className="mt-2 w-full rounded-sm border border-ink-900/15 bg-parchment-100 px-3 py-2 text-sm outline-none focus:border-forest-600"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-medium uppercase tracking-wide text-graphite-500">Title</label>
+          <input
+            value={constituencyTitle}
+            onChange={(e) => setConstituencyTitle(e.target.value)}
+            className="mt-2 w-full rounded-sm border border-ink-900/15 bg-parchment-100 px-3 py-2 text-sm outline-none focus:border-forest-600"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-medium uppercase tracking-wide text-graphite-500">Intro</label>
+          <textarea
+            rows={3}
+            value={constituencyIntro}
+            onChange={(e) => setConstituencyIntro(e.target.value)}
+            className="mt-2 w-full rounded-sm border border-ink-900/15 bg-parchment-100 px-3 py-2 text-sm outline-none focus:border-forest-600"
+          />
+        </div>
+        {errors.content_constituency && (
+          <p className="text-sm text-clay-600">{errors.content_constituency}</p>
+        )}
+        <SaveButton saving={savingGroup === "content_constituency"} saved={savedGroup === "content_constituency"} />
+      </form>
+
+      {/* Foundation page */}
+      <form
+        onSubmit={(e: FormEvent) => {
+          e.preventDefault();
+          saveGroup("content_foundation", {
+            foundation_page_eyebrow: foundationEyebrow,
+            foundation_page_title: foundationTitle,
+            foundation_page_intro: foundationIntro,
+          });
+        }}
+        className="mt-6 max-w-2xl space-y-4 rounded-sm border border-ink-900/10 bg-parchment-50 p-6"
+      >
+        <p className="font-mono text-[11px] uppercase tracking-wide text-gold-600">Foundation Page</p>
+        <div>
+          <label className="block text-xs font-medium uppercase tracking-wide text-graphite-500">Eyebrow</label>
+          <input
+            value={foundationEyebrow}
+            onChange={(e) => setFoundationEyebrow(e.target.value)}
+            className="mt-2 w-full rounded-sm border border-ink-900/15 bg-parchment-100 px-3 py-2 text-sm outline-none focus:border-forest-600"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-medium uppercase tracking-wide text-graphite-500">Title</label>
+          <input
+            value={foundationTitle}
+            onChange={(e) => setFoundationTitle(e.target.value)}
+            className="mt-2 w-full rounded-sm border border-ink-900/15 bg-parchment-100 px-3 py-2 text-sm outline-none focus:border-forest-600"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-medium uppercase tracking-wide text-graphite-500">Intro</label>
+          <textarea
+            rows={3}
+            value={foundationIntro}
+            onChange={(e) => setFoundationIntro(e.target.value)}
+            className="mt-2 w-full rounded-sm border border-ink-900/15 bg-parchment-100 px-3 py-2 text-sm outline-none focus:border-forest-600"
+          />
+        </div>
+        {errors.content_foundation && (
+          <p className="text-sm text-clay-600">{errors.content_foundation}</p>
+        )}
+        <SaveButton saving={savingGroup === "content_foundation"} saved={savedGroup === "content_foundation"} />
+      </form>
+
+      {/* Contact page */}
+      <form
+        onSubmit={(e: FormEvent) => {
+          e.preventDefault();
+          saveGroup("content_contact", {
+            contact_page_eyebrow: contactEyebrow,
+            contact_page_title: contactTitle,
+            contact_page_intro: contactIntro,
+            contact_office_address: contactAddress,
+            contact_office_phone: contactPhone,
+            contact_office_email: contactEmail,
+          });
+        }}
+        className="mt-6 max-w-2xl space-y-4 rounded-sm border border-ink-900/10 bg-parchment-50 p-6"
+      >
+        <p className="font-mono text-[11px] uppercase tracking-wide text-gold-600">Contact Page</p>
+        <div>
+          <label className="block text-xs font-medium uppercase tracking-wide text-graphite-500">Eyebrow</label>
+          <input
+            value={contactEyebrow}
+            onChange={(e) => setContactEyebrow(e.target.value)}
+            className="mt-2 w-full rounded-sm border border-ink-900/15 bg-parchment-100 px-3 py-2 text-sm outline-none focus:border-forest-600"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-medium uppercase tracking-wide text-graphite-500">Title</label>
+          <input
+            value={contactTitle}
+            onChange={(e) => setContactTitle(e.target.value)}
+            className="mt-2 w-full rounded-sm border border-ink-900/15 bg-parchment-100 px-3 py-2 text-sm outline-none focus:border-forest-600"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-medium uppercase tracking-wide text-graphite-500">Intro</label>
+          <textarea
+            rows={3}
+            value={contactIntro}
+            onChange={(e) => setContactIntro(e.target.value)}
+            className="mt-2 w-full rounded-sm border border-ink-900/15 bg-parchment-100 px-3 py-2 text-sm outline-none focus:border-forest-600"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-medium uppercase tracking-wide text-graphite-500">
+            Office Address
+          </label>
+          <textarea
+            rows={2}
+            value={contactAddress}
+            onChange={(e) => setContactAddress(e.target.value)}
+            className="mt-2 w-full rounded-sm border border-ink-900/15 bg-parchment-100 px-3 py-2 text-sm outline-none focus:border-forest-600"
+          />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className="block text-xs font-medium uppercase tracking-wide text-graphite-500">Phone</label>
+            <input
+              value={contactPhone}
+              onChange={(e) => setContactPhone(e.target.value)}
+              className="mt-2 w-full rounded-sm border border-ink-900/15 bg-parchment-100 px-3 py-2 text-sm outline-none focus:border-forest-600"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium uppercase tracking-wide text-graphite-500">Email</label>
+            <input
+              value={contactEmail}
+              onChange={(e) => setContactEmail(e.target.value)}
+              className="mt-2 w-full rounded-sm border border-ink-900/15 bg-parchment-100 px-3 py-2 text-sm outline-none focus:border-forest-600"
+            />
+          </div>
+        </div>
+        {errors.content_contact && <p className="text-sm text-clay-600">{errors.content_contact}</p>}
+        <SaveButton saving={savingGroup === "content_contact"} saved={savedGroup === "content_contact"} />
+      </form>
+
     </div>
   );
 }

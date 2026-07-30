@@ -1,5 +1,9 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { GraduationCap, Stethoscope, Briefcase, FolderKanban, ArrowRight } from "lucide-react";
+import { apiFetch } from "@/lib/api/client";
 
 const pillars = [
   { icon: GraduationCap, label: "Scholarships", text: "Funding education for students across the constituency." },
@@ -8,20 +12,41 @@ const pillars = [
   { icon: FolderKanban, label: "Community Projects", text: "Small-scale infrastructure and welfare projects, ward by ward." },
 ];
 
+type PageCopy = {
+  foundation_page_eyebrow?: string;
+  foundation_page_title?: string;
+  foundation_page_intro?: string;
+};
+
+const defaults = {
+  eyebrow: "Lucky Eseigbe Foundation",
+  title: "Impact beyond the campaign cycle.",
+  intro:
+    "The Foundation exists to serve the constituency between election cycles — scholarships, medical outreach, and empowerment programs delivered directly to the communities that need them.",
+};
+
 export default function FoundationOverviewPage() {
+  const [copy, setCopy] = useState(defaults);
+
+  useEffect(() => {
+    apiFetch<PageCopy>("/settings?group=content_foundation")
+      .then((res) =>
+        setCopy({
+          eyebrow: res.foundation_page_eyebrow || defaults.eyebrow,
+          title: res.foundation_page_title || defaults.title,
+          intro: res.foundation_page_intro || defaults.intro,
+        })
+      )
+      .catch(() => setCopy(defaults));
+  }, []);
+
   return (
     <div className="mx-auto max-w-5xl px-6 py-20">
-      <p className="font-mono text-xs uppercase tracking-[0.24em] text-forest-600">
-        Lucky Eseigbe Foundation
-      </p>
+      <p className="font-mono text-xs uppercase tracking-[0.24em] text-forest-600">{copy.eyebrow}</p>
       <h1 className="mt-3 font-[family-name:var(--font-display)] text-4xl font-semibold text-ink-900 sm:text-5xl">
-        Impact beyond the campaign cycle.
+        {copy.title}
       </h1>
-      <p className="mt-6 max-w-2xl text-lg leading-relaxed text-graphite-500">
-        The Foundation exists to serve the constituency between election cycles —
-        scholarships, medical outreach, and empowerment programs delivered directly
-        to the communities that need them.
-      </p>
+      <p className="mt-6 max-w-2xl text-lg leading-relaxed text-graphite-500">{copy.intro}</p>
 
       <div className="mt-8 flex flex-wrap gap-4">
         <Link

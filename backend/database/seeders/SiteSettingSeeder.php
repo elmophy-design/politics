@@ -16,6 +16,26 @@ class SiteSettingSeeder extends Seeder
                 'home_hero_headline_highlight' => 'a record you can verify.',
                 'home_hero_quote' => 'Governance is not a promise made once every four years — it is a ledger, open to the people who gave you their vote.',
                 'home_hero_background_image' => '',
+                // Four Pillars section (homepage cards under the hero)
+                'pillars_section_eyebrow' => 'Four Pillars',
+                'pillars_section_headline' => 'One office, four commitments to the constituency.',
+                'pillar_constituency_title' => 'Constituency Projects',
+                'pillar_constituency_description' => 'Every road, borehole, and classroom funded through this office, tracked by ward with real progress photos.',
+                'pillar_constituency_image' => '',
+                'pillar_constituency_href' => '/constituency-projects',
+                'pillar_foundation_title' => 'Lucky Eseigbe Foundation',
+                'pillar_foundation_description' => 'Scholarships, medical outreach, and empowerment programs reaching communities beyond the campaign cycle.',
+                'pillar_foundation_image' => '',
+                'pillar_foundation_href' => '/foundation',
+                'pillar_election_title' => 'Election Situation Room',
+                'pillar_election_description' => 'Ward-by-ward result collation and accredited polling agents, built for transparency on election day.',
+                'pillar_election_image' => '',
+                'pillar_election_href' => '/about/political-profile',
+                'pillar_engagement_title' => 'Citizen Engagement',
+                'pillar_engagement_description' => 'Report an issue, request assistance, or send a suggestion directly — and track how it\'s resolved.',
+                'pillar_engagement_image' => '',
+                'pillar_engagement_href' => '/contact',
+
             ],
             'footer' => [
                 'social_facebook_url' => '',
@@ -71,6 +91,26 @@ class SiteSettingSeeder extends Seeder
                     ['year' => '—', 'event' => 'Election to current office.'],
                 ]),
             ],
+
+            'content_constituency' => [
+                'constituency_page_eyebrow' => 'Transparency Tracker',
+                'constituency_page_title' => 'Constituency Projects',
+                'constituency_page_intro' => 'Every road, borehole, and classroom funded through this office — tracked by ward, with real progress.',
+            ],
+            'content_foundation' => [
+                'foundation_page_eyebrow' => 'Lucky Eseigbe Foundation',
+                'foundation_page_title' => 'Impact beyond the campaign cycle.',
+                'foundation_page_intro' => 'The Foundation exists to serve the constituency between election cycles — scholarships, medical outreach, and empowerment programs delivered directly to the communities that need them.',
+            ],
+            'content_contact' => [
+                'contact_page_eyebrow' => 'Get in Touch',
+                'contact_page_title' => 'Reach the constituency office',
+                'contact_page_intro' => 'Report an issue, raise a complaint, or send a suggestion — every submission is logged and routed to the right ward coordinator.',
+                'contact_office_address' => 'Address to be confirmed',
+                'contact_office_phone' => 'To be confirmed',
+                'contact_office_email' => 'contact@luckyeseigbe.org',
+            ],
+
         ];
 
         foreach ($defaults as $group => $settings) {

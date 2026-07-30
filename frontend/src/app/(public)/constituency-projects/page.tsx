@@ -17,6 +17,12 @@ type ConstituencyProject = {
 };
 type Paginated<T> = { data: T[] };
 
+type PageCopy = {
+  constituency_page_eyebrow?: string;
+  constituency_page_title?: string;
+  constituency_page_intro?: string;
+};
+
 const statusStyles: Record<ConstituencyProject["status"], string> = {
   ongoing: "bg-forest-600/10 text-forest-700",
   completed: "bg-ink-900/10 text-ink-900",
@@ -24,9 +30,29 @@ const statusStyles: Record<ConstituencyProject["status"], string> = {
   stalled: "bg-clay-500/10 text-clay-600",
 };
 
+const defaults = {
+  eyebrow: "Transparency Tracker",
+  title: "Constituency Projects",
+  intro:
+    "Every road, borehole, and classroom funded through this office — tracked by ward, with real progress.",
+};
+
 export default function ConstituencyProjectsPage() {
   const [projects, setProjects] = useState<ConstituencyProject[] | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>("");
+  const [copy, setCopy] = useState(defaults);
+
+  useEffect(() => {
+    apiFetch<PageCopy>("/settings?group=content_constituency")
+      .then((res) =>
+        setCopy({
+          eyebrow: res.constituency_page_eyebrow || defaults.eyebrow,
+          title: res.constituency_page_title || defaults.title,
+          intro: res.constituency_page_intro || defaults.intro,
+        })
+      )
+      .catch(() => setCopy(defaults));
+  }, []);
 
   useEffect(() => {
     const query = statusFilter ? `?status=${statusFilter}` : "";
@@ -37,14 +63,11 @@ export default function ConstituencyProjectsPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-20">
-      <p className="font-mono text-xs uppercase tracking-[0.24em] text-forest-600">Transparency Tracker</p>
+      <p className="font-mono text-xs uppercase tracking-[0.24em] text-forest-600">{copy.eyebrow}</p>
       <h1 className="mt-3 font-[family-name:var(--font-display)] text-4xl font-semibold text-ink-900">
-        Constituency Projects
+        {copy.title}
       </h1>
-      <p className="mt-4 max-w-xl text-graphite-500">
-        Every road, borehole, and classroom funded through this office — tracked
-        by ward, with real progress.
-      </p>
+      <p className="mt-4 max-w-xl text-graphite-500">{copy.intro}</p>
 
       <div className="mt-8 flex flex-wrap gap-2">
         {["", "planned", "ongoing", "completed", "stalled"].map((s) => (
@@ -63,7 +86,9 @@ export default function ConstituencyProjectsPage() {
       </div>
 
       {projects === null && (
-        <div className="mt-16"><ListCardSkeleton count={4} /></div>
+        <div className="mt-16">
+          <ListCardSkeleton count={4} />
+        </div>
       )}
 
       {projects?.length === 0 && (
@@ -91,7 +116,9 @@ export default function ConstituencyProjectsPage() {
                     {project.title}
                   </h2>
                 </div>
-                <span className={`shrink-0 rounded-full px-3 py-1 text-[10px] font-medium uppercase tracking-wide ${statusStyles[project.status]}`}>
+                <span
+                  className={`shrink-0 rounded-full px-3 py-1 text-[10px] font-medium uppercase tracking-wide ${statusStyles[project.status]}`}
+                >
                   {project.status}
                 </span>
               </div>

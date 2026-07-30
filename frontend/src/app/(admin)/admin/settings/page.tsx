@@ -5,13 +5,119 @@ import { useAuth } from "@/lib/context/AuthContext";
 import { apiFetch, ApiError } from "@/lib/api/client";
 import { PageHeader } from "@/components/admin/Shared/PageHeader";
 
+
+const STORAGE_URL = process.env.NEXT_PUBLIC_STORAGE_URL ?? "http://localhost:8000/storage";
+
+function mediaUrl(path?: string | null): string | null {
+  if (!path) return null;
+  if (path.startsWith("http://") || path.startsWith("https://") || path.startsWith("data:")) return path;
+  return `${STORAGE_URL}/${path.replace(/^\//, "")}`;
+}
+
+function ImagePreview({
+  path,
+  label,
+  onClear,
+}: {
+  path?: string | null;
+  label: string;
+  onClear?: () => void;
+}) {
+  const src = mediaUrl(path);
+  if (!src) {
+    return (
+      <div className="mt-2 flex h-20 w-full items-center justify-center rounded-sm border border-dashed border-ink-900/15 bg-parchment-100 text-[11px] uppercase tracking-wide text-graphite-500">
+        No image
+      </div>
+    );
+  }
+  return (
+    <div className="mt-2 flex items-start gap-3">
+      <div className="relative h-20 w-32 shrink-0 overflow-hidden rounded-sm border border-ink-900/10 bg-ink-900/5">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={src} alt={label} className="h-full w-full object-cover" />
+      </div>
+      {onClear && (
+        <button
+          type="button"
+          onClick={onClear}
+          className="rounded-sm border border-ink-900/15 px-2.5 py-1 text-xs text-graphite-700 hover:border-clay-500 hover:text-clay-600"
+        >
+          Remove
+        </button>
+      )}
+    </div>
+  );
+}
+
+
 type HomepageSettings = {
   home_hero_eyebrow: string;
   home_hero_headline: string;
   home_hero_headline_highlight: string;
   home_hero_quote: string;
   home_hero_background_image: string;
+  pillars_section_eyebrow: string;
+  pillars_section_headline: string;
+  pillar_constituency_title: string;
+  pillar_constituency_description: string;
+  pillar_constituency_image: string;
+  pillar_constituency_href: string;
+  pillar_foundation_title: string;
+  pillar_foundation_description: string;
+  pillar_foundation_image: string;
+  pillar_foundation_href: string;
+  pillar_election_title: string;
+  pillar_election_description: string;
+  pillar_election_image: string;
+  pillar_election_href: string;
+  pillar_engagement_title: string;
+  pillar_engagement_description: string;
+  pillar_engagement_image: string;
+  pillar_engagement_href: string;
 };
+
+const PILLAR_FIELDS: {
+  label: string;
+  titleKey: keyof HomepageSettings;
+  descriptionKey: keyof HomepageSettings;
+  imageKey: keyof HomepageSettings;
+  hrefKey: keyof HomepageSettings;
+  defaultHref: string;
+}[] = [
+  {
+    label: "Constituency Projects",
+    titleKey: "pillar_constituency_title",
+    descriptionKey: "pillar_constituency_description",
+    imageKey: "pillar_constituency_image",
+    hrefKey: "pillar_constituency_href",
+    defaultHref: "/constituency-projects",
+  },
+  {
+    label: "Lucky Eseigbe Foundation",
+    titleKey: "pillar_foundation_title",
+    descriptionKey: "pillar_foundation_description",
+    imageKey: "pillar_foundation_image",
+    hrefKey: "pillar_foundation_href",
+    defaultHref: "/foundation",
+  },
+  {
+    label: "Election Situation Room",
+    titleKey: "pillar_election_title",
+    descriptionKey: "pillar_election_description",
+    imageKey: "pillar_election_image",
+    hrefKey: "pillar_election_href",
+    defaultHref: "/about/political-profile",
+  },
+  {
+    label: "Citizen Engagement",
+    titleKey: "pillar_engagement_title",
+    descriptionKey: "pillar_engagement_description",
+    imageKey: "pillar_engagement_image",
+    hrefKey: "pillar_engagement_href",
+    defaultHref: "/contact",
+  },
+];
 
 type FooterSettings = {
   social_facebook_url: string;
@@ -63,9 +169,47 @@ export default function AdminSettingsPage() {
   const [savedGroup, setSavedGroup] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [uploadingBg, setUploadingBg] = useState(false);
+  const [uploadingPillar, setUploadingPillar] = useState<string | null>(null);
 
   useEffect(() => {
-    apiFetch<HomepageSettings>("/settings?group=homepage").then(setHomepage).catch(() => setHomepage(null));
+    apiFetch<HomepageSettings>("/settings?group=homepage")
+      .then((res) =>
+        setHomepage({
+          home_hero_eyebrow: res?.home_hero_eyebrow ?? "",
+          home_hero_headline: res?.home_hero_headline ?? "",
+          home_hero_headline_highlight: res?.home_hero_headline_highlight ?? "",
+          home_hero_quote: res?.home_hero_quote ?? "",
+          home_hero_background_image: res?.home_hero_background_image ?? "",
+          pillars_section_eyebrow: res?.pillars_section_eyebrow ?? "Four Pillars",
+          pillars_section_headline:
+            res?.pillars_section_headline ?? "One office, four commitments to the constituency.",
+          pillar_constituency_title: res?.pillar_constituency_title ?? "Constituency Projects",
+          pillar_constituency_description:
+            res?.pillar_constituency_description ??
+            "Every road, borehole, and classroom funded through this office, tracked by ward with real progress photos.",
+          pillar_constituency_image: res?.pillar_constituency_image ?? "",
+          pillar_constituency_href: res?.pillar_constituency_href ?? "/constituency-projects",
+          pillar_foundation_title: res?.pillar_foundation_title ?? "Lucky Eseigbe Foundation",
+          pillar_foundation_description:
+            res?.pillar_foundation_description ??
+            "Scholarships, medical outreach, and empowerment programs reaching communities beyond the campaign cycle.",
+          pillar_foundation_image: res?.pillar_foundation_image ?? "",
+          pillar_foundation_href: res?.pillar_foundation_href ?? "/foundation",
+          pillar_election_title: res?.pillar_election_title ?? "Election Situation Room",
+          pillar_election_description:
+            res?.pillar_election_description ??
+            "Ward-by-ward result collation and accredited polling agents, built for transparency on election day.",
+          pillar_election_image: res?.pillar_election_image ?? "",
+          pillar_election_href: res?.pillar_election_href ?? "/about/political-profile",
+          pillar_engagement_title: res?.pillar_engagement_title ?? "Citizen Engagement",
+          pillar_engagement_description:
+            res?.pillar_engagement_description ??
+            "Report an issue, request assistance, or send a suggestion directly — and track how it's resolved.",
+          pillar_engagement_image: res?.pillar_engagement_image ?? "",
+          pillar_engagement_href: res?.pillar_engagement_href ?? "/contact",
+        })
+      )
+      .catch(() => setHomepage(null));
     apiFetch<FooterSettings>("/settings?group=footer").then(setFooter).catch(() => setFooter(null));
     apiFetch<PaymentSettings>("/settings?group=payments").then(setPayments).catch(() => setPayments(null));
     apiFetch<ThemeSettings>("/settings?group=theme").then(setTheme).catch(() => setTheme(null));
@@ -125,6 +269,25 @@ export default function AdminSettingsPage() {
     }
   }
 
+  async function handlePillarUpload(key: keyof HomepageSettings, label: string, file: File) {
+    if (!homepage) return;
+    setUploadingPillar(key);
+    try {
+      const formData = new FormData();
+      formData.append("type", "gallery_image");
+      formData.append("title", `Four Pillars — ${label}`);
+      formData.append("file", file);
+      const media = await apiFetch<{ file_path: string }>("/media", { method: "POST", body: formData });
+      const updated = { ...homepage, [key]: media.file_path };
+      setHomepage(updated);
+      await saveGroup("homepage", updated);
+    } catch (err) {
+      setErrors((e) => ({ ...e, homepage: err instanceof ApiError ? err.message : "Upload failed" }));
+    } finally {
+      setUploadingPillar(null);
+    }
+  }
+
   return (
     <div>
       <PageHeader eyebrow="Site Configuration" title="Settings" />
@@ -179,11 +342,15 @@ export default function AdminSettingsPage() {
 
           <div>
             <label className="block text-xs font-medium uppercase tracking-wide text-graphite-500">Logo</label>
-            <p className="mt-1 text-xs text-graphite-500">
-              {identity.site_logo_image
-                ? "A logo is set — it now appears in the header next to the site name."
-                : "No logo set — the header shows the site name as text only."}
-            </p>
+            <ImagePreview
+              path={identity.site_logo_image}
+              label="Site logo"
+              onClear={
+                identity.site_logo_image
+                  ? () => setIdentity({ ...identity, site_logo_image: "" })
+                  : undefined
+              }
+            />
             <input
               type="file"
               accept="image/*"
@@ -322,11 +489,15 @@ export default function AdminSettingsPage() {
             <label className="block text-xs font-medium uppercase tracking-wide text-graphite-500">
               Background Image
             </label>
-            <p className="mt-1 text-xs text-graphite-500">
-              {homepage.home_hero_background_image
-                ? "A background photo is set — the hero switches to a photo layout with white/gold text automatically."
-                : "No background photo set — the hero uses the default textured white layout."}
-            </p>
+            <ImagePreview
+              path={homepage.home_hero_background_image}
+              label="Hero background"
+              onClear={
+                homepage.home_hero_background_image
+                  ? () => setHomepage({ ...homepage, home_hero_background_image: "" })
+                  : undefined
+              }
+            />
             <input
               type="file"
               accept="image/*"
@@ -335,6 +506,121 @@ export default function AdminSettingsPage() {
               className="mt-2 w-full rounded-sm border border-ink-900/15 bg-parchment-100 px-3 py-2 text-sm outline-none focus:border-forest-600"
             />
             {uploadingBg && <p className="mt-1 text-xs text-graphite-500">Uploading…</p>}
+          </div>
+
+          <div className="border-t border-ink-900/10 pt-4 space-y-4">
+            <div>
+              <p className="font-mono text-[11px] uppercase tracking-wide text-gold-600">Four Pillars Section</p>
+              <p className="mt-1 text-xs text-graphite-500">
+                Heading, card copy, optional images, and link targets for the homepage cards under the hero.
+              </p>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label className="block text-xs font-medium uppercase tracking-wide text-graphite-500">
+                  Section Eyebrow
+                </label>
+                <input
+                  value={homepage.pillars_section_eyebrow}
+                  onChange={(e) =>
+                    setHomepage({ ...homepage, pillars_section_eyebrow: e.target.value })
+                  }
+                  className="mt-2 w-full rounded-sm border border-ink-900/15 bg-parchment-100 px-3 py-2 text-sm outline-none focus:border-forest-600"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium uppercase tracking-wide text-graphite-500">
+                  Section Headline
+                </label>
+                <input
+                  value={homepage.pillars_section_headline}
+                  onChange={(e) =>
+                    setHomepage({ ...homepage, pillars_section_headline: e.target.value })
+                  }
+                  className="mt-2 w-full rounded-sm border border-ink-900/15 bg-parchment-100 px-3 py-2 text-sm outline-none focus:border-forest-600"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              {PILLAR_FIELDS.map(({ label, titleKey, descriptionKey, imageKey, hrefKey, defaultHref }) => (
+                <div
+                  key={imageKey}
+                  className="rounded-sm border border-ink-900/10 bg-parchment-100/60 p-4 space-y-3"
+                >
+                  <p className="text-xs font-semibold uppercase tracking-wide text-ink-900">{label}</p>
+                  <div>
+                    <label className="block text-xs font-medium uppercase tracking-wide text-graphite-500">
+                      Title
+                    </label>
+                    <input
+                      value={homepage[titleKey]}
+                      onChange={(e) =>
+                        setHomepage({ ...homepage, [titleKey]: e.target.value })
+                      }
+                      className="mt-1 w-full rounded-sm border border-ink-900/15 bg-parchment-50 px-3 py-2 text-sm outline-none focus:border-forest-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium uppercase tracking-wide text-graphite-500">
+                      Description
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={homepage[descriptionKey]}
+                      onChange={(e) =>
+                        setHomepage({ ...homepage, [descriptionKey]: e.target.value })
+                      }
+                      className="mt-1 w-full rounded-sm border border-ink-900/15 bg-parchment-50 px-3 py-2 text-sm outline-none focus:border-forest-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium uppercase tracking-wide text-graphite-500">
+                      Link Target
+                    </label>
+                    <input
+                      value={homepage[hrefKey]}
+                      onChange={(e) =>
+                        setHomepage({ ...homepage, [hrefKey]: e.target.value })
+                      }
+                      placeholder={defaultHref}
+                      className="mt-1 w-full rounded-sm border border-ink-900/15 bg-parchment-50 px-3 py-2 font-mono text-sm outline-none focus:border-forest-600"
+                    />
+                    <p className="mt-1 text-[11px] text-graphite-500">
+                      Relative path (e.g. /foundation) or full URL.
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium uppercase tracking-wide text-graphite-500">
+                      Card Image
+                    </label>
+                    <ImagePreview
+                      path={homepage[imageKey]}
+                      label={label}
+                      onClear={
+                        homepage[imageKey]
+                          ? () => setHomepage({ ...homepage, [imageKey]: "" })
+                          : undefined
+                      }
+                    />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      disabled={uploadingPillar === imageKey}
+                      onChange={(e) =>
+                        e.target.files?.[0] &&
+                        handlePillarUpload(imageKey, label, e.target.files[0])
+                      }
+                      className="mt-2 w-full rounded-sm border border-ink-900/15 bg-parchment-50 px-3 py-2 text-sm outline-none focus:border-forest-600"
+                    />
+                    {uploadingPillar === imageKey && (
+                      <p className="mt-1 text-xs text-graphite-500">Uploading…</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           {errors.homepage && <p className="text-sm text-clay-600">{errors.homepage}</p>}
