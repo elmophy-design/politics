@@ -112,7 +112,7 @@ export function FocusAreas() {
           {headline}
         </h2>
 
-        <div className="mt-14 grid gap-px overflow-hidden rounded-sm border border-ink-900/10 bg-ink-900/10 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
           {defaults.pillars.map((pillar) => {
             const title = settings[pillar.titleKey] || pillar.title;
             const description = settings[pillar.descriptionKey] || pillar.description;
@@ -133,7 +133,7 @@ export function FocusAreas() {
                     />
                   </div>
                 ) : null}
-                <div className="flex flex-1 flex-col gap-3 p-8">
+                <div className="flex flex-1 flex-col gap-3 p-6 sm:p-7">
                   <h3 className="font-[family-name:var(--font-display)] text-lg font-semibold text-ink-900">
                     {title}
                   </h3>
@@ -146,7 +146,7 @@ export function FocusAreas() {
             );
 
             const className =
-              "group flex flex-col bg-parchment-50 transition-colors hover:bg-parchment-100";
+              "group flex flex-col overflow-hidden rounded-sm border border-ink-900/10 bg-parchment-50 shadow-sm transition-all duration-200 hover:border-ink-900/20 hover:bg-parchment-100 hover:shadow-md";
 
             if (isExternal) {
               return (
