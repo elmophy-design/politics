@@ -1,96 +1,62 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { apiFetch } from "@/lib/api/client";
 import { CredentialSlider } from "./CredentialSlider";
 
-type HeroSlide = {
-  id: number;
-  eyebrow: string | null;
-  headline: string;
-  headline_highlight: string | null;
-  quote: string | null;
-  image_path: string | null;
+type HeroSettings = {
+  home_hero_eyebrow?: string;
+  home_hero_headline?: string;
+  home_hero_headline_highlight?: string;
+  home_hero_quote?: string;
+  home_hero_background_image?: string;
 };
 
-const FALLBACK: HeroSlide = {
-  id: 0,
-  eyebrow: "Constituency Representative · Barrister · Public Servant",
-  headline: "A voice for every ward,",
-  headline_highlight: "a record you can verify.",
-  quote:
+const defaults: Required<HeroSettings> = {
+  home_hero_eyebrow: "Constituency Representative · Barrister · Public Servant",
+  home_hero_headline: "A voice for every ward,",
+  home_hero_headline_highlight: "a record you can verify.",
+  home_hero_quote:
     "Governance is not a promise made once every four years — it is a ledger, open to the people who gave you their vote.",
-  image_path: null,
+  home_hero_background_image: "",
 };
 
 const STORAGE_URL = process.env.NEXT_PUBLIC_STORAGE_URL ?? "http://localhost:8000/storage";
-const SLIDE_INTERVAL_MS = 4000;
-const FADE_MS = 700;
-
-function resolveImage(path: string | null) {
-  if (!path) return null;
-  if (path.startsWith("http")) return path;
-  return `${STORAGE_URL}/${path}`;
-}
 
 export function Hero() {
-  const [slides, setSlides] = useState<HeroSlide[]>([]);
-  const [index, setIndex] = useState(0);
-  const [visible, setVisible] = useState(true);
-  const [loaded, setLoaded] = useState(false);
+  const [settings, setSettings] = useState<Required<HeroSettings>>(defaults);
 
   useEffect(() => {
-    apiFetch<HeroSlide[]>("/hero-slides")
-      .then((data) => {
-        setSlides(data.length > 0 ? data : [FALLBACK]);
-        setLoaded(true);
-      })
-      .catch(() => {
-        setSlides([FALLBACK]);
-        setLoaded(true);
-      });
+    apiFetch<HeroSettings>("/settings?group=homepage")
+      .then((res) => setSettings({ ...defaults, ...res }))
+      .catch(() => setSettings(defaults));
   }, []);
 
-  const goNext = useCallback(() => {
-    if (slides.length <= 1) return;
-    setVisible(false);
-    setTimeout(() => {
-      setIndex((i) => (i + 1) % slides.length);
-      setVisible(true);
-    }, FADE_MS);
-  }, [slides.length]);
-
-  useEffect(() => {
-    if (!loaded || slides.length <= 1) return;
-    const timer = setInterval(goNext, SLIDE_INTERVAL_MS);
-    return () => clearInterval(timer);
-  }, [loaded, slides.length, goNext]);
-
-  const slide = slides[index] ?? FALLBACK;
-  const bgSrc = resolveImage(slide.image_path);
-  const hasBackground = Boolean(bgSrc);
+  const hasBackground = Boolean(settings.home_hero_background_image);
+  const bgSrc = hasBackground
+    ? settings.home_hero_background_image.startsWith("http")
+      ? settings.home_hero_background_image
+      : `${STORAGE_URL}/${settings.home_hero_background_image}`
+    : null;
 
   return (
     <section className="relative overflow-hidden bg-ink-900">
-      {bgSrc && (
+      {bgSrc ? (
         <>
           <Image
-            key={slide.id}
             src={bgSrc}
             alt=""
             fill
-            priority={index === 0}
-            className={`object-cover transition-opacity duration-700 ${
-              visible ? "opacity-100" : "opacity-0"
-            }`}
+            priority
+            className="object-cover"
           />
+          {/* Dark gradient so white text stays readable over any photo */}
           <div className="absolute inset-0 bg-gradient-to-r from-ink-950/90 via-ink-950/70 to-ink-950/40" />
         </>
-      )}
-      {!hasBackground && (
+      ) : (
         <>
           <div className="absolute inset-0 bg-parchment-50" />
           <div className="ward-grid-texture pointer-events-none absolute inset-0" />
@@ -100,73 +66,39 @@ export function Hero() {
       <div className="relative mx-auto max-w-6xl px-6 py-24 lg:py-32">
         <CredentialSlider variant={hasBackground ? "dark" : "light"} />
 
-        <div
-          className={`transition-all duration-700 ${
-            visible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
+        <p
+          className={`font-mono text-xs uppercase tracking-[0.24em] ${
+            hasBackground ? "text-gold-300" : "text-forest-600"
           }`}
         >
-          {slide.eyebrow && (
-            <p
-              className={`font-mono text-xs uppercase tracking-[0.24em] ${
-                hasBackground ? "text-gold-300" : "text-forest-600"
-              }`}
-            >
-              {slide.eyebrow}
-            </p>
-          )}
+          {settings.home_hero_eyebrow}
+        </p>
 
-          <h1
-            className={`mt-6 max-w-3xl font-[family-name:var(--font-display)] text-5xl font-semibold leading-[1.05] tracking-tight sm:text-6xl ${
-              hasBackground ? "text-parchment-50" : "text-ink-900"
+        <h1
+          className={`mt-6 max-w-3xl font-[family-name:var(--font-display)] text-5xl font-semibold leading-[1.05] tracking-tight sm:text-6xl ${
+            hasBackground ? "text-parchment-50" : "text-ink-900"
+          }`}
+        >
+          {settings.home_hero_headline}
+          <span className={hasBackground ? "italic text-gold-300" : "italic text-forest-600"}>
+            {" "}
+            {settings.home_hero_headline_highlight}
+          </span>
+        </h1>
+
+        <div
+          className={`mt-10 flex max-w-2xl gap-4 border-l-2 pl-6 ${
+            hasBackground ? "border-gold-500" : "border-gold-500"
+          }`}
+        >
+          <p
+            className={`font-[family-name:var(--font-display)] text-xl italic leading-relaxed ${
+              hasBackground ? "text-parchment-100" : "text-graphite-700"
             }`}
           >
-            {slide.headline}
-            {slide.headline_highlight && (
-              <span className={hasBackground ? "italic text-gold-300" : "italic text-forest-600"}>
-                {" "}
-                {slide.headline_highlight}
-              </span>
-            )}
-          </h1>
-
-          {slide.quote && (
-            <div className="mt-10 flex max-w-2xl gap-4 border-l-2 border-gold-500 pl-6">
-              <p
-                className={`font-[family-name:var(--font-display)] text-xl italic leading-relaxed ${
-                  hasBackground ? "text-parchment-100" : "text-graphite-700"
-                }`}
-              >
-                &ldquo;{slide.quote}&rdquo;
-              </p>
-            </div>
-          )}
+            &ldquo;{settings.home_hero_quote}&rdquo;
+          </p>
         </div>
-
-        {slides.length > 1 && (
-          <div className="mt-8 flex gap-2" aria-hidden="true">
-            {slides.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => {
-                  if (i === index) return;
-                  setVisible(false);
-                  setTimeout(() => {
-                    setIndex(i);
-                    setVisible(true);
-                  }, FADE_MS);
-                }}
-                className={`h-1.5 rounded-full transition-all duration-500 ${
-                  i === index
-                    ? "w-8 bg-gold-500"
-                    : hasBackground
-                      ? "w-1.5 bg-parchment-50/30 hover:bg-parchment-50/50"
-                      : "w-1.5 bg-ink-900/20 hover:bg-ink-900/40"
-                }`}
-                aria-label={`Go to slide ${i + 1}`}
-              />
-            ))}
-          </div>
-        )}
 
         <div className="mt-10 flex flex-wrap items-center gap-4">
           <Link
