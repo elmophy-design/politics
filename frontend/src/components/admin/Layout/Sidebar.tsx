@@ -17,6 +17,7 @@ import {
   Settings,
   FileText,
   LogOut,
+  Sparkles,
 } from "lucide-react";
 import { useAuth } from "@/lib/context/AuthContext";
 import { cn } from "@/lib/utils/cn";
@@ -45,8 +46,8 @@ const navItems: (
   { type: "link", href: "/admin/constituency/projects", label: "Constituency Projects", icon: Building2 },
   { type: "link", href: "/admin/citizen-engagement/reports", label: "Citizen Reports", icon: MessagesSquare },
   { type: "link", href: "/admin/media", label: "Media Centre", icon: ImageIcon },
-  { type: "link", href: "/admin/users", label: "Users", icon: UserCog },
   { type: "link", href: "/admin/hero-slides", label: "Hero Write-ups", icon: Sparkles },
+  { type: "link", href: "/admin/users", label: "Users", icon: UserCog },
   { type: "link", href: "/admin/content", label: "Content", icon: FileText },
   { type: "link", href: "/admin/settings", label: "Settings", icon: Settings },
 ];
