@@ -12,6 +12,8 @@ class HeroSlideController extends Controller
 {
     use ApiResponse;
 
+    private const MAX_SLIDES = 10;
+
     public function indexPublic()
     {
         $slides = HeroSlide::active()->ordered()->get();
@@ -26,6 +28,14 @@ class HeroSlideController extends Controller
 
     public function store(Request $request)
     {
+        // Hard limit: max 10 write-ups
+        if (HeroSlide::count() >= self::MAX_SLIDES) {
+            return $this->error(
+                'You can only have up to '.self::MAX_SLIDES.' hero write-ups. Delete one before adding another.',
+                422
+            );
+        }
+
         $validated = $request->validate([
             'eyebrow' => ['nullable', 'string', 'max:255'],
             'headline' => ['required', 'string', 'max:500'],

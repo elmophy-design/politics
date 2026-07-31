@@ -19,6 +19,7 @@ type HeroSlide = {
 };
 
 const STORAGE_URL = process.env.NEXT_PUBLIC_STORAGE_URL ?? "http://localhost:8000/storage";
+const MAX_SLIDES = 10;
 
 function imageSrc(path: string | null) {
   if (!path) return null;
@@ -44,6 +45,8 @@ export default function AdminHeroSlidesPage() {
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
+  const atLimit = slides !== null && slides.length >= MAX_SLIDES;
+
   function load() {
     apiFetch<HeroSlide[]>("/admin/hero-slides")
       .then(setSlides)
@@ -53,6 +56,7 @@ export default function AdminHeroSlidesPage() {
   useEffect(load, []);
 
   function openCreate() {
+    if (atLimit) return;
     setEditingId(null);
     setForm(emptyForm);
     setImageFile(null);
@@ -152,7 +156,8 @@ export default function AdminHeroSlidesPage() {
         action={
           <button
             onClick={openCreate}
-            className="inline-flex items-center gap-2 rounded-sm bg-ink-900 px-4 py-2.5 text-sm font-medium text-parchment-50 hover:bg-ink-800"
+            disabled={atLimit}
+            className="inline-flex items-center gap-2 rounded-sm bg-ink-900 px-4 py-2.5 text-sm font-medium text-parchment-50 hover:bg-ink-800 disabled:cursor-not-allowed disabled:opacity-40"
           >
             <Plus className="h-4 w-4" /> Add Write-up
           </button>
@@ -163,6 +168,10 @@ export default function AdminHeroSlidesPage() {
         Each write-up appears as a full hero slide on the homepage. Slides rotate automatically every
         4 seconds with a fade animation. Add an image for the background (same styling as the
         original hero).
+      </p>
+      <p className="mt-1 text-xs text-graphite-500">
+        {slides ? `${slides.length} / ${MAX_SLIDES} write-ups used` : ""}
+        {atLimit && " — limit reached. Delete one to add another."}
       </p>
 
       {formOpen && (
