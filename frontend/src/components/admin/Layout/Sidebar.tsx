@@ -46,6 +46,7 @@ const navItems: (
   { type: "link", href: "/admin/citizen-engagement/reports", label: "Citizen Reports", icon: MessagesSquare },
   { type: "link", href: "/admin/media", label: "Media Centre", icon: ImageIcon },
   { type: "link", href: "/admin/users", label: "Users", icon: UserCog },
+  { type: "link", href: "/admin/hero-slides", label: "Hero Write-ups", icon: Sparkles },
   { type: "link", href: "/admin/content", label: "Content", icon: FileText },
   { type: "link", href: "/admin/settings", label: "Settings", icon: Settings },
 ];

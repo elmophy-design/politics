@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\ElectionController;
 use App\Http\Controllers\Api\EventController;
 use App\Http\Controllers\Api\FoundationController;
 use App\Http\Controllers\Api\GeographyController;
+use App\Http\Controllers\Api\HeroSlideController;
 use App\Http\Controllers\Api\MediaController;
 use App\Http\Controllers\Api\SiteSettingController;
 use App\Http\Controllers\Api\UserController;
@@ -51,6 +52,8 @@ Route::get('/media/categories', [MediaController::class, 'categories']);
 Route::get('/media/{slug}', [MediaController::class, 'show']);
 
 Route::get('/settings', [SiteSettingController::class, 'index']);
+
+Route::get('/hero-slides', [HeroSlideController::class, 'indexPublic']);
 
 // ---- Authenticated ----
 Route::middleware('auth:sanctum')->group(function () {
@@ -144,5 +147,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/media/{medium}', [MediaController::class, 'update']);
         Route::delete('/media/{medium}', [MediaController::class, 'destroy']);
         Route::put('/settings', [SiteSettingController::class, 'update']);
+
+        // Hero write-ups
+        Route::get('/admin/hero-slides', [HeroSlideController::class, 'index']);
+        Route::post('/admin/hero-slides', [HeroSlideController::class, 'store']);
+        Route::put('/admin/hero-slides/{heroSlide}', [HeroSlideController::class, 'update']);
+        Route::delete('/admin/hero-slides/{heroSlide}', [HeroSlideController::class, 'destroy']);
+        Route::post('/admin/hero-slides/reorder', [HeroSlideController::class, 'reorder']);
     });
 });
