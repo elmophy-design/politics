@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\GeographyController;
 use App\Http\Controllers\Api\HeroSlideController;
 use App\Http\Controllers\Api\MediaController;
 use App\Http\Controllers\Api\SiteSettingController;
+use App\Http\Controllers\Api\ManifestoBotController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\VolunteerController;
 use Illuminate\Support\Facades\Route;
@@ -52,6 +53,10 @@ Route::get('/media/categories', [MediaController::class, 'categories']);
 Route::get('/media/{slug}', [MediaController::class, 'show']);
 
 Route::get('/settings', [SiteSettingController::class, 'index']);
+
+// Manifesto Q&A bot — knowledge rebuilt from live settings on every request
+Route::post('/manifesto-bot/ask', [ManifestoBotController::class, 'ask']);
+Route::get('/manifesto-bot/knowledge', [ManifestoBotController::class, 'knowledge']);
 
 Route::get('/hero-slides', [HeroSlideController::class, 'indexPublic']);
 
