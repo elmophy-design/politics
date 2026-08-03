@@ -517,7 +517,7 @@ export default function SituationRoomLivePage() {
         setError(null);
       })
       .catch((err) => {
-        setError(err instanceof ApiError ? err.message : "");
+        setError(err instanceof ApiError ? err.message : "ELECTION DATA");
         setLive(false);
       });
   }, []);
