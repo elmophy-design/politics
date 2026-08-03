@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import {
   LayoutDashboard,
@@ -248,38 +248,55 @@ function timeAgo(iso: string | null) {
 /* ------------------------------------------------------------------ */
 
 function DonutChart({ slices, total }: { slices: PartySlice[]; total: number }) {
-  const size = 160;
-  const stroke = 28;
+  const size = 168;
+  const stroke = 26;
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
+  // Precompute segments so React keys/offsets are stable
+  const segments: { party: string; color: string; dash: number; offset: number }[] = [];
   let offset = 0;
+  const safeTotal = total > 0 ? total : slices.reduce((a, s) => a + s.votes, 0) || 1;
+  for (const s of slices) {
+    const pct = s.votes / safeTotal;
+    const dash = Math.max(0, pct * c);
+    segments.push({
+      party: s.party,
+      color: PARTY_COLORS[s.party] ?? "#64748b",
+      dash,
+      offset,
+    });
+    offset += dash;
+  }
 
   return (
-    <div className="relative flex items-center justify-center">
-      <svg width={size} height={size} className="-rotate-90">
-        {slices.map((s) => {
-          const pct = total > 0 ? s.votes / total : 0;
-          const dash = pct * c;
-          const el = (
-            <circle
-              key={s.party}
-              cx={size / 2}
-              cy={size / 2}
-              r={r}
-              fill="none"
-              stroke={PARTY_COLORS[s.party] ?? "#64748b"}
-              strokeWidth={stroke}
-              strokeDasharray={`${dash} ${c - dash}`}
-              strokeDashoffset={-offset}
-              strokeLinecap="butt"
-            />
-          );
-          offset += dash;
-          return el;
-        })}
+    <div className="relative mx-auto flex h-[168px] w-[168px] shrink-0 items-center justify-center">
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="block" style={{ transform: "rotate(-90deg)" }}>
+        {/* Track */}
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          stroke="#1e293b"
+          strokeWidth={stroke}
+        />
+        {segments.map((seg) => (
+          <circle
+            key={seg.party}
+            cx={size / 2}
+            cy={size / 2}
+            r={r}
+            fill="none"
+            stroke={seg.color}
+            strokeWidth={stroke}
+            strokeDasharray={`${seg.dash} ${Math.max(0, c - seg.dash)}`}
+            strokeDashoffset={-seg.offset}
+            strokeLinecap="butt"
+          />
+        ))}
       </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-        <p className="text-lg font-bold text-white tabular-nums">{fmt(total)}</p>
+      <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
+        <p className="text-lg font-bold tabular-nums text-white">{fmt(total)}</p>
         <p className="text-[10px] uppercase tracking-wider text-slate-400">Total Valid Votes</p>
       </div>
     </div>
@@ -288,34 +305,64 @@ function DonutChart({ slices, total }: { slices: PartySlice[]; total: number }) 
 
 function TrendChart({ points }: { points: TrendPoint[] }) {
   if (!points.length) {
-    return <div className="flex h-40 items-center justify-center text-xs text-slate-500">No trend data yet</div>;
+    return <div className="flex h-36 items-center justify-center text-xs text-slate-500">No trend data yet</div>;
   }
-  const w = 320;
+  const w = 400;
   const h = 140;
-  const pad = 12;
+  const padL = 8;
+  const padR = 8;
+  const padT = 10;
+  const padB = 22;
   const maxY = Math.max(...points.flatMap((p) => [p.candidate, p.others]), 1);
-  const stepX = points.length > 1 ? (w - pad * 2) / (points.length - 1) : 0;
+  const stepX = points.length > 1 ? (w - padL - padR) / (points.length - 1) : 0;
 
-  const toPath = (key: "candidate" | "others") =>
-    points
-      .map((p, i) => {
-        const x = pad + i * stepX;
-        const y = h - pad - (p[key] / maxY) * (h - pad * 2);
-        return `${i === 0 ? "M" : "L"}${x},${y}`;
-      })
-      .join(" ");
+  const coords = (key: "candidate" | "others") =>
+    points.map((p, i) => {
+      const x = padL + i * stepX;
+      const y = padT + (1 - p[key] / maxY) * (h - padT - padB);
+      return { x, y };
+    });
+
+  const toPath = (key: "candidate" | "others") => {
+    const pts = coords(key);
+    return pts.map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+  };
+
+  const toArea = (key: "candidate" | "others") => {
+    const pts = coords(key);
+    if (!pts.length) return "";
+    const base = h - padB;
+    return (
+      `M${pts[0].x},${base} ` +
+      pts.map((p) => `L${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ") +
+      ` L${pts[pts.length - 1].x},${base} Z`
+    );
+  };
 
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="h-full w-full">
-      <path d={toPath("candidate")} fill="none" stroke="#22c55e" strokeWidth="2.5" />
-      <path d={toPath("others")} fill="none" stroke="#ef4444" strokeWidth="2.5" />
+    <svg viewBox={`0 0 ${w} ${h}`} className="h-full w-full" preserveAspectRatio="none">
+      {/* grid lines */}
+      {[0.25, 0.5, 0.75].map((t) => {
+        const y = padT + t * (h - padT - padB);
+        return <line key={t} x1={padL} x2={w - padR} y1={y} y2={y} stroke="#1e293b" strokeWidth="1" />;
+      })}
+      <path d={toArea("candidate")} fill="rgba(34,197,94,0.12)" />
+      <path d={toPath("candidate")} fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+      <path d={toPath("others")} fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+      {coords("candidate").map((p, i) => (
+        <circle key={`c-${i}`} cx={p.x} cy={p.y} r="3" fill="#22c55e" />
+      ))}
+      {coords("others").map((p, i) => (
+        <circle key={`o-${i}`} cx={p.x} cy={p.y} r="3" fill="#ef4444" />
+      ))}
       {points.map((p, i) => (
         <text
           key={p.time}
-          x={pad + i * stepX}
-          y={h - 2}
+          x={padL + i * stepX}
+          y={h - 4}
           textAnchor="middle"
-          className="fill-slate-500 text-[9px]"
+          fill="#64748b"
+          style={{ fontSize: 10 }}
         >
           {p.time}
         </text>
@@ -476,9 +523,25 @@ export default function SituationRoomLivePage() {
   const load = useCallback(() => {
     apiFetch<LiveData>("/situation-room/dashboard/live")
       .then((res) => {
-        // If backend returns empty tallies, keep demo visuals but mark as connected
-        if (res && (res.total_polling_units > 0 || res.results_received > 0 || res.total_valid_votes > 0)) {
-          setData(res);
+        // Only adopt API data when there is real tally content.
+        // Empty party_breakdown / trend would blank the charts — keep DEMO then.
+        const hasVotes = res && (res.total_valid_votes > 0 || res.results_received > 0);
+        const hasCharts =
+          Array.isArray(res?.party_breakdown) &&
+          res.party_breakdown.length > 0 &&
+          Array.isArray(res?.trend);
+        if (hasVotes && hasCharts) {
+          setData({
+            ...DEMO,
+            ...res,
+            party_breakdown: res.party_breakdown.length ? res.party_breakdown : DEMO.party_breakdown,
+            trend: res.trend?.length ? res.trend : DEMO.trend,
+            results_by_lga: res.results_by_lga?.length ? res.results_by_lga : DEMO.results_by_lga,
+            top_wards: res.top_wards?.length ? res.top_wards : DEMO.top_wards,
+            latest_results: res.latest_results?.length ? res.latest_results : DEMO.latest_results,
+            incidents: res.incidents?.length ? res.incidents : DEMO.incidents,
+            map_wards: res.map_wards ?? DEMO.map_wards,
+          });
         }
         setLive(true);
         setError(null);
@@ -502,7 +565,7 @@ export default function SituationRoomLivePage() {
   const d = data;
 
   return (
-    <div className="fixed inset-0 z-50 flex bg-[#060d1a] text-slate-100">
+    <div className="flex min-h-screen w-full bg-[#060d1a] text-slate-100">
       {/* ---- Left nav ---- */}
       <aside className="flex w-52 shrink-0 flex-col border-r border-slate-800/80 bg-[#0a1220]">
         <div className="flex items-center gap-3 border-b border-slate-800/80 px-4 py-4">
@@ -914,8 +977,8 @@ function Panel({
   action,
 }: {
   title: string;
-  children: React.ReactNode;
-  action?: React.ReactNode;
+  children: ReactNode;
+  action?: ReactNode;
 }) {
   return (
     <section className="rounded-lg border border-slate-800/80 bg-[#0f1a2e] p-4">

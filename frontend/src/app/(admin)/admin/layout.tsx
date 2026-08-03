@@ -1,13 +1,17 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Sidebar } from "@/components/admin/Layout/Sidebar";
 import { useAuth } from "@/lib/context/AuthContext";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
+
+  // Live Situation Room is a full-viewport command centre — no parchment shell / max-width.
+  const isLiveSituationRoom = pathname === "/admin/situation-room";
 
   useEffect(() => {
     if (!loading && !user) {
@@ -21,6 +25,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <p className="font-mono text-sm text-graphite-500">Checking session…</p>
       </div>
     );
+  }
+
+  // Full-bleed for live command centre (it draws its own sidebar + dark UI)
+  if (isLiveSituationRoom) {
+    return <div className="min-h-screen bg-[#060d1a]">{children}</div>;
   }
 
   return (
