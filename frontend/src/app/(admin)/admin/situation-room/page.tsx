@@ -517,7 +517,7 @@ export default function SituationRoomLivePage() {
         setError(null);
       })
       .catch((err) => {
-        setError(err instanceof ApiError ? err.message : "Using demo data — connect API for live figures");
+        setError(err instanceof ApiError ? err.message : "");
         setLive(false);
       });
   }, []);
