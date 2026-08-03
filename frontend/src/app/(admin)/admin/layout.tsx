@@ -27,10 +27,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     );
   }
 
+  // h-screen + overflow-hidden: only the content column scrolls.
+  // Sidebar stays full viewport height — no white gap below it.
   return (
-    <div className="flex min-h-screen bg-parchment-100">
+    <div className="flex h-screen overflow-hidden bg-parchment-100">
       <Sidebar />
-      <div className="flex-1 overflow-y-auto">
+      <div
+        className={
+          isLiveSituationRoom
+            ? "min-h-0 flex-1 overflow-y-auto bg-[#060d1a]"
+            : "min-h-0 flex-1 overflow-y-auto bg-parchment-100"
+        }
+      >
         {isLiveSituationRoom ? (
           <div className="min-h-full">{children}</div>
         ) : (

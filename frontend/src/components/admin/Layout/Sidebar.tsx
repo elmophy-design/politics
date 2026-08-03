@@ -58,7 +58,7 @@ export function Sidebar() {
   const { user, logout } = useAuth();
 
   return (
-    <aside className="flex h-screen w-64 shrink-0 flex-col border-r border-parchment-100/10 bg-ink-950 text-parchment-100">
+    <aside className="flex h-full w-64 shrink-0 flex-col self-stretch border-r border-parchment-100/10 bg-ink-950 text-parchment-100">
       <div className="border-b border-parchment-100/10 px-6 py-6">
         <p className="font-[family-name:var(--font-display)] text-lg font-semibold">Lucky Eseigbe</p>
         <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-gold-300">Admin Dashboard</p>
