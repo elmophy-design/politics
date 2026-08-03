@@ -10,7 +10,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
   const pathname = usePathname();
 
-  // Live Situation Room is a full-viewport command centre — no parchment shell / max-width.
+  // Live Situation Room needs wider canvas (charts) but same admin sidebar
   const isLiveSituationRoom = pathname === "/admin/situation-room";
 
   useEffect(() => {
@@ -27,16 +27,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     );
   }
 
-  // Full-bleed for live command centre (it draws its own sidebar + dark UI)
-  if (isLiveSituationRoom) {
-    return <div className="min-h-screen bg-[#060d1a]">{children}</div>;
-  }
-
   return (
     <div className="flex min-h-screen bg-parchment-100">
       <Sidebar />
       <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-6xl px-8 py-10">{children}</div>
+        {isLiveSituationRoom ? (
+          <div className="min-h-full">{children}</div>
+        ) : (
+          <div className="mx-auto max-w-6xl px-8 py-10">{children}</div>
+        )}
       </div>
     </div>
   );

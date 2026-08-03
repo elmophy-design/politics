@@ -3,23 +3,10 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import {
-  LayoutDashboard,
-  Radio,
-  MapPin,
-  Map,
   AlertTriangle,
-  FileText,
-  BarChart3,
-  Megaphone,
-  Users,
-  HandCoins,
-  CalendarDays,
-  MessagesSquare,
-  Settings,
   Bell,
   Maximize2,
   Send,
-  Shield,
 } from "lucide-react";
 import { apiFetch, ApiError } from "@/lib/api/client";
 import { cn } from "@/lib/utils/cn";
@@ -211,23 +198,6 @@ const PARTY_COLORS: Record<string, string> = {
   OTHER: "#a855f7",
 };
 
-const SIDE_NAV = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/situation-room", label: "Situation Room", icon: Radio, active: true },
-  { href: "/admin/situation-room/results", label: "Live Results", icon: BarChart3 },
-  { href: "/admin/situation-room/wards", label: "Wards", icon: MapPin },
-  { href: "/admin/situation-room/polling-units", label: "Polling Units", icon: MapPin },
-  { href: "/admin/situation-room", label: "Results Map", icon: Map },
-  { href: "/admin/situation-room/incidents", label: "Incidents", icon: AlertTriangle },
-  { href: "/admin/citizen-engagement/reports", label: "Reports", icon: FileText },
-  { href: "/admin", label: "Analytics", icon: BarChart3 },
-  { href: "/admin/campaigns", label: "Campaigns", icon: Megaphone },
-  { href: "/admin/volunteers", label: "Volunteers", icon: Users },
-  { href: "/admin/donations/reports", label: "Donations", icon: HandCoins },
-  { href: "/admin/events", label: "Events", icon: CalendarDays },
-  { href: "/admin/citizen-engagement/reports", label: "Citizen Reports", icon: MessagesSquare },
-  { href: "/admin/settings", label: "Settings", icon: Settings },
-];
 
 /* ------------------------------------------------------------------ */
 /* Helpers                                                             */
@@ -565,55 +535,8 @@ export default function SituationRoomLivePage() {
   const d = data;
 
   return (
-    <div className="flex min-h-screen w-full bg-[#060d1a] text-slate-100">
-      {/* ---- Left nav ---- */}
-      <aside className="flex w-52 shrink-0 flex-col border-r border-slate-800/80 bg-[#0a1220]">
-        <div className="flex items-center gap-3 border-b border-slate-800/80 px-4 py-4">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-600/20 ring-1 ring-emerald-500/40">
-            <Shield className="h-4 w-4 text-emerald-400" />
-          </div>
-          <div className="min-w-0">
-            <p className="truncate text-xs font-semibold text-white">Lucky Eseigbe</p>
-            <p className="truncate text-[10px] uppercase tracking-wider text-slate-500">
-              Digital Campaign Command Centre
-            </p>
-          </div>
-        </div>
-
-        <nav className="flex-1 space-y-0.5 overflow-y-auto px-2 py-3">
-          {SIDE_NAV.map((item) => {
-            const Icon = item.icon;
-            const isActive = item.active || item.href === "/admin/situation-room";
-            return (
-              <Link
-                key={item.label + item.href}
-                href={item.href}
-                className={cn(
-                  "flex items-center gap-2.5 rounded-md px-3 py-2 text-[12px] transition-colors",
-                  isActive && item.label === "Situation Room"
-                    ? "bg-emerald-600/20 font-medium text-emerald-400"
-                    : "text-slate-400 hover:bg-slate-800/60 hover:text-slate-200"
-                )}
-              >
-                <Icon className="h-3.5 w-3.5 shrink-0" />
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="border-t border-slate-800/80 px-4 py-3">
-          <div className="flex items-center gap-2 text-[10px] text-emerald-400">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-            </span>
-            System Status · All Systems Operational
-          </div>
-        </div>
-      </aside>
-
-      {/* ---- Main ---- */}
+    <div className="flex min-h-[calc(100vh-0px)] w-full flex-col bg-[#060d1a] text-slate-100">
+      {/* Main — uses normal admin Sidebar from layout; no second nav */}
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         {/* Header */}
         <header className="flex items-center justify-between border-b border-slate-800/80 px-6 py-3">
