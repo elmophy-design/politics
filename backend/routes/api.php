@@ -101,6 +101,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/situation-room/dashboard/ward/{ward}', [ElectionController::class, 'wardDashboard']);
         Route::get('/situation-room/dashboard/lga/{lga}', [ElectionController::class, 'lgaDashboard']);
         Route::get('/situation-room/dashboard/constituency', [ElectionController::class, 'constituencyDashboard']);
+        Route::get('/situation-room/dashboard/live', [ElectionController::class, 'liveDashboard']);
 
         // Wards & Polling Units setup — feeds the Situation Room, Volunteer Portal, and Constituency Tracker
         Route::post('/wards', [GeographyController::class, 'storeWard']);

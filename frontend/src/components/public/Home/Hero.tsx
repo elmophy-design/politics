@@ -23,7 +23,7 @@ const FALLBACK: HeroSlide = {
   headline_highlight: "a record you can verify.",
   quote:
     "Governance is not a promise made once every four years — it is a ledger, open to the people who gave you their vote.",
-   headline_hero_background_image: "",
+  headline_hero_background_image: "",
 };
 
 const STORAGE_URL = process.env.NEXT_PUBLIC_STORAGE_URL ?? "http://localhost:8000/storage";
