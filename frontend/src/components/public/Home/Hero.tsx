@@ -23,7 +23,8 @@ const FALLBACK: HeroSlide = {
   headline_highlight: "a record you can verify.",
   quote:
     "Governance is not a promise made once every four years — it is a ledger, open to the people who gave you their vote.",
-  headline_hero_background_image: "",
+  // Local public asset — shown when API has no slides yet (also fixes TS build)
+  image_path: "/images/Honorable_Lucky_Eseigbe.png",
 };
 
 const STORAGE_URL = process.env.NEXT_PUBLIC_STORAGE_URL ?? "http://localhost:8000/storage";
@@ -32,7 +33,9 @@ const FADE_MS = 700;
 
 function resolveImage(path: string | null) {
   if (!path) return null;
-  if (path.startsWith("http")) return path;
+  // Absolute URL or site-public path (e.g. /images/...)
+  if (path.startsWith("http") || path.startsWith("/")) return path;
+  // Backend storage relative path (e.g. hero-slides/xyz.jpg)
   return `${STORAGE_URL}/${path}`;
 }
 
