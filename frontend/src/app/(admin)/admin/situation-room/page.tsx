@@ -78,25 +78,109 @@ type LiveData = {
 };
 
 /* ------------------------------------------------------------------ */
-/* Empty live shell — no mock figures; filled only by the API          */
+/* Demo data first — real API values override when available           */
 /* ------------------------------------------------------------------ */
 
-const EMPTY_LIVE: LiveData = {
-  total_polling_units: 0,
-  results_received: 0,
-  percentage_completed: 0,
-  total_valid_votes: 0,
-  candidate: { name: "Lucky Eseigbe", party: "APC", votes: 0, percentage: 0 },
-  other_parties: { votes: 0, percentage: 0 },
-  party_breakdown: [],
-  results_by_lga: [],
-  top_wards: [],
+const DEMO: LiveData = {
+  total_polling_units: 987,
+  results_received: 623,
+  percentage_completed: 63.12,
+  total_valid_votes: 128845,
+  candidate: { name: "Lucky Eseigbe", party: "APC", votes: 74523, percentage: 57.8 },
+  other_parties: { votes: 54322, percentage: 42.2 },
+  party_breakdown: [
+    { party: "APC", votes: 74523, percentage: 57.84 },
+    { party: "PDP", votes: 28145, percentage: 21.84 },
+    { party: "LP", votes: 15210, percentage: 11.81 },
+    { party: "NNPP", votes: 6842, percentage: 5.31 },
+    { party: "Others", votes: 4125, percentage: 3.2 },
+  ],
+  results_by_lga: [
+    { lga: "Esan West", percentage_completed: 78.5, candidate_votes: 18420, total_votes: 31200, units_reported: 45, units_total: 58 },
+    { lga: "Esan Central", percentage_completed: 71.2, candidate_votes: 15210, total_votes: 26800, units_reported: 38, units_total: 52 },
+    { lga: "Esan North-East", percentage_completed: 65.0, candidate_votes: 12890, total_votes: 24100, units_reported: 32, units_total: 49 },
+    { lga: "Igueben", percentage_completed: 58.4, candidate_votes: 9870, total_votes: 18200, units_reported: 24, units_total: 41 },
+  ],
+  top_wards: [
+    { ward: "Ward 6, Irruekpen", ward_id: 6, percentage_completed: 92, candidate_votes: 3120, units_reported: 11, units_total: 12 },
+    { ward: "Ward 3, Ekpoma", ward_id: 3, percentage_completed: 88, candidate_votes: 2987, units_reported: 9, units_total: 10 },
+    { ward: "Ward 1, Auchi", ward_id: 1, percentage_completed: 96, candidate_votes: 2845, units_reported: 8, units_total: 9 },
+    { ward: "Ward 4, Igueben", ward_id: 4, percentage_completed: 95, candidate_votes: 2654, units_reported: 7, units_total: 8 },
+  ],
   map_wards: [],
-  latest_results: [],
-  incidents: [],
-  trend: [],
-  pending_results: 0,
-  flagged_results: 0,
+  latest_results: [
+    {
+      id: 1,
+      polling_unit: "Unit 009",
+      ward: "Central School, Irruekpen",
+      party_votes: { APC: 238, PDP: 115, LP: 32 },
+      candidate_votes: 238,
+      submitted_at: new Date().toISOString(),
+    },
+    {
+      id: 2,
+      polling_unit: "Unit 015",
+      ward: "Ujaro Primary",
+      party_votes: { APC: 214, PDP: 104, LP: 26 },
+      candidate_votes: 214,
+      submitted_at: new Date().toISOString(),
+    },
+    {
+      id: 3,
+      polling_unit: "Unit 023",
+      ward: "St. Mary School",
+      party_votes: { APC: 167, PDP: 98, LP: 21 },
+      candidate_votes: 167,
+      submitted_at: new Date().toISOString(),
+    },
+    {
+      id: 4,
+      polling_unit: "Unit 002",
+      ward: "Ekpoma College",
+      party_votes: { APC: 189, PDP: 99, LP: 18 },
+      candidate_votes: 189,
+      submitted_at: new Date().toISOString(),
+    },
+  ],
+  incidents: [
+    {
+      id: 1,
+      title: "Ballot box snatching reported",
+      severity: "high",
+      status: "reported",
+      polling_unit: "Unit 045",
+      ward: "Owan East",
+      reported_at: new Date().toISOString(),
+    },
+    {
+      id: 2,
+      title: "Violence at polling unit",
+      severity: "high",
+      status: "under_review",
+      polling_unit: "Unit 012",
+      ward: "Etsako West",
+      reported_at: new Date().toISOString(),
+    },
+    {
+      id: 3,
+      title: "Vote buying reported",
+      severity: "medium",
+      status: "reported",
+      polling_unit: "Unit 067",
+      ward: "Esan Central",
+      reported_at: new Date().toISOString(),
+    },
+  ],
+  trend: [
+    { time: "08:00", candidate: 2000, others: 1500 },
+    { time: "10:00", candidate: 12000, others: 9000 },
+    { time: "12:00", candidate: 28000, others: 20000 },
+    { time: "14:00", candidate: 45000, others: 32000 },
+    { time: "16:00", candidate: 62000, others: 45000 },
+    { time: "18:00", candidate: 74523, others: 54322 },
+  ],
+  pending_results: 42,
+  flagged_results: 8,
   updated_at: new Date().toISOString(),
 };
 
@@ -271,8 +355,15 @@ function ResultsMap({ wards }: { wards: MapWard[] }) {
         label: w.ward,
       }));
     }
-    // No wards configured yet — empty map (no demo tiles)
-    return [];
+    // Demo mosaic until real map_wards arrive from the API
+    const demoStatus = [
+      ...Array(12).fill("strong_lead"),
+      ...Array(10).fill("leading"),
+      ...Array(8).fill("close"),
+      ...Array(6).fill("trailing"),
+      ...Array(12).fill("no_result"),
+    ];
+    return demoStatus.map((s, i) => ({ id: i, status: s, label: `W${i + 1}` }));
   }, [wards]);
 
   const color: Record<string, string> = {
@@ -282,14 +373,6 @@ function ResultsMap({ wards }: { wards: MapWard[] }) {
     trailing: "#ef4444",
     no_result: "#334155",
   };
-
-  if (!cells.length) {
-    return (
-      <div className="flex h-full min-h-[180px] items-center justify-center rounded-lg border border-dashed border-slate-700 text-xs text-slate-500">
-        No wards yet — add them under Constituencies
-      </div>
-    );
-  }
 
   return (
     <div className="relative h-full min-h-[180px] w-full overflow-hidden rounded-lg">
@@ -345,7 +428,7 @@ function ResultsMap({ wards }: { wards: MapWard[] }) {
 /* ------------------------------------------------------------------ */
 
 export default function SituationRoomLivePage() {
-  const [data, setData] = useState<LiveData>(EMPTY_LIVE);
+  const [data, setData] = useState<LiveData>(DEMO);
   const [live, setLive] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [clock, setClock] = useState(() => new Date());
@@ -368,31 +451,63 @@ export default function SituationRoomLivePage() {
       .then((res) => {
         if (!res) return;
 
+        // Demo first; real data overrides field-by-field when present.
+        const hasVotes =
+          Number(res.total_valid_votes ?? 0) > 0 || Number(res.results_received ?? 0) > 0;
+        const hasGeography = Number(res.total_polling_units ?? 0) > 0;
+
+        const pickArray = <T,>(live: T[] | undefined, demo: T[]): T[] =>
+          Array.isArray(live) && live.length > 0 ? live : demo;
+
         setData({
-          total_polling_units: Number(res.total_polling_units ?? 0),
-          results_received: Number(res.results_received ?? 0),
-          percentage_completed: Number(res.percentage_completed ?? 0),
-          total_valid_votes: Number(res.total_valid_votes ?? 0),
-          candidate: res.candidate ?? EMPTY_LIVE.candidate,
-          other_parties: res.other_parties ?? EMPTY_LIVE.other_parties,
-          party_breakdown: Array.isArray(res.party_breakdown) ? res.party_breakdown : [],
-          results_by_lga: Array.isArray(res.results_by_lga) ? res.results_by_lga : [],
-          top_wards: Array.isArray(res.top_wards) ? res.top_wards : [],
-          map_wards: Array.isArray(res.map_wards) ? res.map_wards : [],
-          latest_results: Array.isArray(res.latest_results) ? res.latest_results : [],
-          incidents: Array.isArray(res.incidents) ? res.incidents : [],
-          trend: Array.isArray(res.trend) ? res.trend : [],
-          pending_results: Number(res.pending_results ?? 0),
-          flagged_results: Number(res.flagged_results ?? 0),
+          ...DEMO,
+          // Structural KPIs: prefer live numbers once geography or votes exist
+          total_polling_units: hasGeography || hasVotes
+            ? Number(res.total_polling_units ?? 0)
+            : DEMO.total_polling_units,
+          results_received: hasGeography || hasVotes
+            ? Number(res.results_received ?? 0)
+            : DEMO.results_received,
+          percentage_completed: hasGeography || hasVotes
+            ? Number(res.percentage_completed ?? 0)
+            : DEMO.percentage_completed,
+          total_valid_votes: hasVotes
+            ? Number(res.total_valid_votes ?? 0)
+            : DEMO.total_valid_votes,
+          candidate: hasVotes && res.candidate ? res.candidate : DEMO.candidate,
+          other_parties: hasVotes && res.other_parties ? res.other_parties : DEMO.other_parties,
+          party_breakdown: hasVotes
+            ? pickArray(res.party_breakdown, [])
+            : pickArray(res.party_breakdown, DEMO.party_breakdown),
+          results_by_lga: hasVotes || (res.results_by_lga?.length ?? 0) > 0
+            ? pickArray(res.results_by_lga, hasVotes ? [] : DEMO.results_by_lga)
+            : DEMO.results_by_lga,
+          top_wards: hasVotes || (res.top_wards?.length ?? 0) > 0
+            ? pickArray(res.top_wards, hasVotes ? [] : DEMO.top_wards)
+            : DEMO.top_wards,
+          map_wards: Array.isArray(res.map_wards) && res.map_wards.length > 0
+            ? res.map_wards
+            : DEMO.map_wards,
+          latest_results: hasVotes
+            ? pickArray(res.latest_results, [])
+            : pickArray(res.latest_results, DEMO.latest_results),
+          incidents: pickArray(res.incidents, DEMO.incidents),
+          trend: hasVotes ? pickArray(res.trend, []) : pickArray(res.trend, DEMO.trend),
+          pending_results: hasVotes || hasGeography
+            ? Number(res.pending_results ?? 0)
+            : DEMO.pending_results,
+          flagged_results: hasVotes || hasGeography
+            ? Number(res.flagged_results ?? 0)
+            : DEMO.flagged_results,
           updated_at: res.updated_at ?? new Date().toISOString(),
         });
         setLive(true);
         setError(null);
       })
       .catch((err) => {
-        setError(err instanceof ApiError ? err.message : "Could not load live results");
+        // Stay on demo figures until the API is reachable
+        setError(err instanceof ApiError ? err.message : "Showing demo data — API not connected");
         setLive(false);
-        // Keep last known live data; do not inject demo figures
       });
   }, []);
 
