@@ -49,6 +49,7 @@ type TreeWard = {
 };
 type TreePayload = {
   constituency: Constituency;
+  state?: { id: number; name: string; code?: string } | null;
   summary: {
     wards: number;
     polling_units: number;
@@ -337,7 +338,9 @@ export default function AdminConstituenciesPage() {
           <div className="border-b border-ink-900/10 px-4 py-3 font-mono text-[11px] uppercase tracking-wide text-graphite-500">
             All constituencies
           </div>
-          {!list && <DataState message="Loading…" />}
+          {!list && (
+            <DataState loading empty={false} error={null} emptyIcon={Building2} emptyText="" />
+          )}
           {list && list.length === 0 && (
             <p className="px-4 py-8 text-center text-sm text-graphite-500">No constituencies yet.</p>
           )}
@@ -370,7 +373,9 @@ export default function AdminConstituenciesPage() {
           {!selectedId && (
             <p className="px-6 py-16 text-center text-sm text-graphite-500">Select a constituency to manage wards & polling units.</p>
           )}
-          {selectedId && treeLoading && <DataState message="Loading structure…" />}
+          {selectedId && treeLoading && (
+            <DataState loading empty={false} error={null} emptyIcon={Building2} emptyText="" />
+          )}
           {selectedId && tree && !treeLoading && (
             <div>
               <div className="flex flex-wrap items-start justify-between gap-3 border-b border-ink-900/10 px-5 py-4">

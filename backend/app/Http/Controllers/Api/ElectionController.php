@@ -288,13 +288,14 @@ class ElectionController extends Controller
         $topWards = array_slice($byWard, 0, 6);
 
         // Map status per ward: strong lead / leading / close / trailing / no result
+        // Include every ward that has polling units so the map reflects admin setup.
         $mapWards = [];
         foreach ($byWard as $w) {
             $status = 'no_result';
             if ($w['units_reported'] > 0) {
-                // crude lead calculation using overall other parties share in ward not available;
-                // use candidate share of reported votes if we recompute — simplified:
-                $status = $w['percentage_completed'] >= 80 ? 'strong_lead' : ($w['percentage_completed'] >= 50 ? 'leading' : 'close');
+                $status = $w['percentage_completed'] >= 80
+                    ? 'strong_lead'
+                    : ($w['percentage_completed'] >= 50 ? 'leading' : 'close');
             }
             $mapWards[] = [
                 'ward' => $w['ward'],
@@ -302,7 +303,28 @@ class ElectionController extends Controller
                 'status' => $status,
                 'candidate_votes' => $w['candidate_votes'],
                 'percentage_completed' => $w['percentage_completed'],
+                'units_reported' => $w['units_reported'],
+                'units_total' => $w['units_total'],
             ];
+        }
+
+        // Ensure wards with zero PUs still appear if they exist in scope
+        if ($mapWards === [] && $totalPollingUnits === 0) {
+            $emptyWardQuery = \App\Models\Ward::query()->orderBy('name');
+            if ($constituencyId) {
+                $emptyWardQuery->where('constituency_id', $constituencyId);
+            }
+            foreach ($emptyWardQuery->limit(48)->get(['id', 'name']) as $ew) {
+                $mapWards[] = [
+                    'ward' => $ew->name,
+                    'ward_id' => $ew->id,
+                    'status' => 'no_result',
+                    'candidate_votes' => 0,
+                    'percentage_completed' => 0,
+                    'units_reported' => 0,
+                    'units_total' => 0,
+                ];
+            }
         }
 
         // Latest results (most recent verified)
@@ -389,6 +411,8 @@ class ElectionController extends Controller
             'pending_results' => $pendingCount,
             'flagged_results' => $flaggedCount,
             'constituency_id' => $constituencyId,
+            'wards_count' => count($byWard),
+            'lgas_count' => count($byLga),
             'updated_at' => now()->toIso8601String(),
         ]);
     }

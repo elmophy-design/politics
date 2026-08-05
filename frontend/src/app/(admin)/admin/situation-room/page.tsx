@@ -493,31 +493,69 @@ export default function SituationRoomLivePage() {
   const load = useCallback(() => {
     apiFetch<LiveData>("/situation-room/dashboard/live")
       .then((res) => {
-        // Only adopt API data when there is real tally content.
-        // Empty party_breakdown / trend would blank the charts — keep DEMO then.
-        const hasVotes = res && (res.total_valid_votes > 0 || res.results_received > 0);
-        const hasCharts =
-          Array.isArray(res?.party_breakdown) &&
-          res.party_breakdown.length > 0 &&
-          Array.isArray(res?.trend);
-        if (hasVotes && hasCharts) {
-          setData({
-            ...DEMO,
-            ...res,
-            party_breakdown: res.party_breakdown.length ? res.party_breakdown : DEMO.party_breakdown,
-            trend: res.trend?.length ? res.trend : DEMO.trend,
-            results_by_lga: res.results_by_lga?.length ? res.results_by_lga : DEMO.results_by_lga,
-            top_wards: res.top_wards?.length ? res.top_wards : DEMO.top_wards,
-            latest_results: res.latest_results?.length ? res.latest_results : DEMO.latest_results,
-            incidents: res.incidents?.length ? res.incidents : DEMO.incidents,
-            map_wards: res.map_wards ?? DEMO.map_wards,
-          });
-        }
+        if (!res) return;
+
+        // Always apply live structural numbers from the API so Constituencies /
+        // Wards / PUs show on the command centre even before results arrive.
+        // DEMO is only used as chart filler when there are no verified votes yet.
+        const hasVotes = (res.total_valid_votes ?? 0) > 0 || (res.results_received ?? 0) > 0;
+
+        const partyBreakdown =
+          Array.isArray(res.party_breakdown) && res.party_breakdown.length > 0
+            ? res.party_breakdown
+            : DEMO.party_breakdown;
+        const trend =
+          Array.isArray(res.trend) && res.trend.length > 0 ? res.trend : DEMO.trend;
+        const byLga =
+          Array.isArray(res.results_by_lga) && res.results_by_lga.length > 0
+            ? res.results_by_lga
+            : hasVotes
+              ? []
+              : DEMO.results_by_lga;
+        const topWards =
+          Array.isArray(res.top_wards) && res.top_wards.length > 0
+            ? res.top_wards
+            : hasVotes
+              ? []
+              : DEMO.top_wards;
+        const latest =
+          Array.isArray(res.latest_results) && res.latest_results.length > 0
+            ? res.latest_results
+            : hasVotes
+              ? []
+              : DEMO.latest_results;
+        const incidents =
+          Array.isArray(res.incidents) && res.incidents.length > 0
+            ? res.incidents
+            : DEMO.incidents;
+
+        setData({
+          ...DEMO,
+          ...res,
+          total_polling_units: Number(res.total_polling_units ?? 0),
+          results_received: Number(res.results_received ?? 0),
+          percentage_completed: Number(res.percentage_completed ?? 0),
+          total_valid_votes: Number(res.total_valid_votes ?? 0),
+          candidate: res.candidate ?? {
+            name: "Lucky Eseigbe",
+            party: "APC",
+            votes: 0,
+            percentage: 0,
+          },
+          other_parties: res.other_parties ?? { votes: 0, percentage: 0 },
+          party_breakdown: hasVotes ? (res.party_breakdown?.length ? res.party_breakdown : []) : partyBreakdown,
+          trend: hasVotes ? (res.trend?.length ? res.trend : []) : trend,
+          results_by_lga: byLga,
+          top_wards: topWards,
+          latest_results: latest,
+          incidents,
+          map_wards: Array.isArray(res.map_wards) ? res.map_wards : [],
+        });
         setLive(true);
         setError(null);
       })
       .catch((err) => {
-        setError(err instanceof ApiError ? err.message : "ELECTION DATA");
+        setError(err instanceof ApiError ? err.message : "Using demo data — connect API for live figures");
         setLive(false);
       });
   }, []);
