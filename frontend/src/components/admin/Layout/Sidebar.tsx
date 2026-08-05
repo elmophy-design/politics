@@ -19,6 +19,7 @@ import {
   LogOut,
   Sparkles,
 } from "lucide-react";
+import { ThemeToggle } from "@/components/admin/Layout/ThemeToggle";
 import { useAuth } from "@/lib/context/AuthContext";
 import { cn } from "@/lib/utils/cn";
 
@@ -122,17 +123,20 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="border-t border-parchment-100/10 px-6 py-5">
-        <p className="truncate text-sm text-parchment-100/90">{user?.name}</p>
-        <p className="truncate font-mono text-xs text-parchment-100/50">
-          {user?.roles?.[0]?.name ?? "staff"}
-        </p>
-        <button
-          onClick={() => logout()}
-          className="mt-3 flex items-center gap-2 text-xs text-parchment-100/60 hover:text-clay-500"
-        >
-          <LogOut className="h-3.5 w-3.5" /> Sign out
-        </button>
+      <div className="border-t border-parchment-100/10 px-4 py-4">
+        <ThemeToggle />
+        <div className="mt-3 px-2">
+          <p className="truncate text-sm text-parchment-100/90">{user?.name}</p>
+          <p className="truncate font-mono text-xs text-parchment-100/50">
+            {user?.roles?.[0]?.name ?? "staff"}
+          </p>
+          <button
+            onClick={() => logout()}
+            className="mt-3 flex items-center gap-2 text-xs text-parchment-100/60 hover:text-clay-500"
+          >
+            <LogOut className="h-3.5 w-3.5" /> Sign out
+          </button>
+        </div>
       </div>
     </aside>
   );

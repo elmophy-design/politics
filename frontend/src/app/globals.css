@@ -113,3 +113,42 @@ body {
   }
 }
 
+
+/* ---- Admin dark mode (shell class: .admin-shell.admin-dark) ---- */
+.admin-shell.admin-dark {
+  --admin-canvas: #0b1210;
+  --admin-surface: #121a16;
+  --admin-surface-2: #182018;
+  --admin-fg: #e8efe9;
+  --admin-muted: #8fa094;
+  --admin-border: rgba(232, 239, 233, 0.1);
+
+  /* Remap design tokens used by admin cards / text so existing classes flip */
+  --color-parchment-50: #121a16;
+  --color-parchment-100: #0b1210;
+  --color-parchment-200: #1a2420;
+  --color-graphite-700: #e8efe9;
+  --color-graphite-500: #8fa094;
+}
+
+.admin-shell.admin-dark .border-ink-900\/10,
+.admin-shell.admin-dark .border-ink-900\/15 {
+  border-color: rgba(232, 239, 233, 0.12);
+}
+
+.admin-shell.admin-dark .bg-white {
+  background-color: var(--admin-surface);
+}
+
+.admin-shell.admin-dark input,
+.admin-shell.admin-dark select,
+.admin-shell.admin-dark textarea {
+  background-color: var(--admin-surface-2);
+  color: var(--admin-fg);
+  border-color: rgba(232, 239, 233, 0.15);
+}
+
+.admin-shell.admin-dark input::placeholder,
+.admin-shell.admin-dark textarea::placeholder {
+  color: var(--admin-muted);
+}

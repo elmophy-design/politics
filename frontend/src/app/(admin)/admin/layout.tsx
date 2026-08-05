@@ -4,13 +4,15 @@ import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Sidebar } from "@/components/admin/Layout/Sidebar";
 import { useAuth } from "@/lib/context/AuthContext";
+import { AdminThemeProvider, useAdminTheme } from "@/lib/context/AdminThemeContext";
+import { cn } from "@/lib/utils/cn";
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+function AdminShell({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const { isDark } = useAdminTheme();
 
-  // Live Situation Room needs wider canvas (charts) but same admin sidebar
   const isLiveSituationRoom = pathname === "/admin/situation-room";
 
   useEffect(() => {
@@ -27,17 +29,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     );
   }
 
-  // h-screen + overflow-hidden: only the content column scrolls.
-  // Sidebar stays full viewport height — no white gap below it.
   return (
-    <div className="flex h-screen overflow-hidden bg-parchment-100">
+    <div
+      className={cn(
+        "admin-shell flex h-screen overflow-hidden transition-colors",
+        isDark ? "admin-dark bg-[var(--admin-canvas)]" : "bg-parchment-100"
+      )}
+    >
       <Sidebar />
       <div
-        className={
+        className={cn(
+          "min-h-0 flex-1 overflow-y-auto transition-colors",
           isLiveSituationRoom
-            ? "min-h-0 flex-1 overflow-y-auto bg-[#060d1a]"
-            : "min-h-0 flex-1 overflow-y-auto bg-parchment-100"
-        }
+            ? "bg-[#060d1a]"
+            : isDark
+              ? "bg-[var(--admin-canvas)] text-[var(--admin-fg)]"
+              : "bg-parchment-100"
+        )}
       >
         {isLiveSituationRoom ? (
           <div className="min-h-full">{children}</div>
@@ -46,5 +54,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         )}
       </div>
     </div>
+  );
+}
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <AdminThemeProvider>
+      <AdminShell>{children}</AdminShell>
+    </AdminThemeProvider>
   );
 }
