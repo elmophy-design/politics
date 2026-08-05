@@ -78,114 +78,25 @@ type LiveData = {
 };
 
 /* ------------------------------------------------------------------ */
-/* Demo / fallback data (matches the design mock)                      */
+/* Empty live shell — no mock figures; filled only by the API          */
 /* ------------------------------------------------------------------ */
 
-const DEMO: LiveData = {
-  total_polling_units: 987,
-  results_received: 623,
-  percentage_completed: 63.12,
-  total_valid_votes: 128845,
-  candidate: { name: "Lucky Eseigbe", party: "APC", votes: 74523, percentage: 57.8 },
-  other_parties: { votes: 54322, percentage: 42.2 },
-  party_breakdown: [
-    { party: "APC", votes: 74523, percentage: 57.84 },
-    { party: "PDP", votes: 28145, percentage: 21.84 },
-    { party: "LP", votes: 12387, percentage: 9.61 },
-    { party: "NNPP", votes: 7245, percentage: 5.62 },
-    { party: "Others", votes: 6545, percentage: 5.08 },
-  ],
-  results_by_lga: [
-    { lga: "Esan West", percentage_completed: 85.4, candidate_votes: 18245, total_votes: 25000, units_reported: 40, units_total: 47 },
-    { lga: "Esan Central", percentage_completed: 78.6, candidate_votes: 15842, total_votes: 22000, units_reported: 35, units_total: 45 },
-    { lga: "Igueben", percentage_completed: 72.1, candidate_votes: 12456, total_votes: 18000, units_reported: 28, units_total: 39 },
-    { lga: "Owan East", percentage_completed: 62.3, candidate_votes: 9845, total_votes: 15000, units_reported: 22, units_total: 35 },
-    { lga: "Owan West", percentage_completed: 58.9, candidate_votes: 8742, total_votes: 14000, units_reported: 20, units_total: 34 },
-    { lga: "Etsako Central", percentage_completed: 51.2, candidate_votes: 5987, total_votes: 11000, units_reported: 18, units_total: 35 },
-    { lga: "Etsako West", percentage_completed: 42.5, candidate_votes: 3456, total_votes: 9000, units_reported: 15, units_total: 35 },
-    { lga: "Other LGAs", percentage_completed: 35.1, candidate_votes: 1950, total_votes: 6000, units_reported: 12, units_total: 34 },
-  ],
-  top_wards: [
-    { ward: "Ward 6, Irruekpen", ward_id: 6, percentage_completed: 100, candidate_votes: 3456, units_reported: 8, units_total: 8 },
-    { ward: "Ward 3, Ujaro", ward_id: 3, percentage_completed: 100, candidate_votes: 3210, units_reported: 7, units_total: 7 },
-    { ward: "Ward 2, Ekpoma", ward_id: 2, percentage_completed: 98, candidate_votes: 2987, units_reported: 9, units_total: 10 },
-    { ward: "Ward 1, Auchi", ward_id: 1, percentage_completed: 96, candidate_votes: 2845, units_reported: 8, units_total: 9 },
-    { ward: "Ward 4, Igueben", ward_id: 4, percentage_completed: 95, candidate_votes: 2654, units_reported: 7, units_total: 8 },
-  ],
+const EMPTY_LIVE: LiveData = {
+  total_polling_units: 0,
+  results_received: 0,
+  percentage_completed: 0,
+  total_valid_votes: 0,
+  candidate: { name: "Lucky Eseigbe", party: "APC", votes: 0, percentage: 0 },
+  other_parties: { votes: 0, percentage: 0 },
+  party_breakdown: [],
+  results_by_lga: [],
+  top_wards: [],
   map_wards: [],
-  latest_results: [
-    {
-      id: 1,
-      polling_unit: "Unit 009",
-      ward: "Central School, Irruekpen",
-      party_votes: { APC: 238, PDP: 115, LP: 32 },
-      candidate_votes: 238,
-      submitted_at: new Date().toISOString(),
-    },
-    {
-      id: 2,
-      polling_unit: "Unit 015",
-      ward: "Ujaro Primary",
-      party_votes: { APC: 214, PDP: 104, LP: 26 },
-      candidate_votes: 214,
-      submitted_at: new Date().toISOString(),
-    },
-    {
-      id: 3,
-      polling_unit: "Unit 023",
-      ward: "St. Mary School",
-      party_votes: { APC: 167, PDP: 98, LP: 21 },
-      candidate_votes: 167,
-      submitted_at: new Date().toISOString(),
-    },
-    {
-      id: 4,
-      polling_unit: "Unit 002",
-      ward: "Ekpoma College",
-      party_votes: { APC: 189, PDP: 99, LP: 18 },
-      candidate_votes: 189,
-      submitted_at: new Date().toISOString(),
-    },
-  ],
-  incidents: [
-    {
-      id: 1,
-      title: "Ballot box snatching reported",
-      severity: "high",
-      status: "reported",
-      polling_unit: "Unit 045",
-      ward: "Owan East",
-      reported_at: new Date().toISOString(),
-    },
-    {
-      id: 2,
-      title: "Violence at polling unit",
-      severity: "high",
-      status: "under_review",
-      polling_unit: "Unit 012",
-      ward: "Etsako West",
-      reported_at: new Date().toISOString(),
-    },
-    {
-      id: 3,
-      title: "Vote buying reported",
-      severity: "medium",
-      status: "reported",
-      polling_unit: "Unit 067",
-      ward: "Esan Central",
-      reported_at: new Date().toISOString(),
-    },
-  ],
-  trend: [
-    { time: "08:00", candidate: 2000, others: 1500 },
-    { time: "10:00", candidate: 12000, others: 9000 },
-    { time: "12:00", candidate: 28000, others: 20000 },
-    { time: "14:00", candidate: 45000, others: 32000 },
-    { time: "16:00", candidate: 62000, others: 45000 },
-    { time: "18:00", candidate: 74523, others: 54322 },
-  ],
-  pending_results: 42,
-  flagged_results: 8,
+  latest_results: [],
+  incidents: [],
+  trend: [],
+  pending_results: 0,
+  flagged_results: 0,
   updated_at: new Date().toISOString(),
 };
 
@@ -218,6 +129,14 @@ function timeAgo(iso: string | null) {
 /* ------------------------------------------------------------------ */
 
 function DonutChart({ slices, total }: { slices: PartySlice[]; total: number }) {
+  if (!slices.length || total <= 0) {
+    return (
+      <div className="mx-auto flex h-[168px] w-[168px] flex-col items-center justify-center rounded-full border border-dashed border-slate-700 text-center">
+        <p className="text-lg font-bold tabular-nums text-white">0</p>
+        <p className="text-[10px] uppercase tracking-wider text-slate-500">Awaiting results</p>
+      </div>
+    );
+  }
   const size = 168;
   const stroke = 26;
   const r = (size - stroke) / 2;
@@ -352,15 +271,8 @@ function ResultsMap({ wards }: { wards: MapWard[] }) {
         label: w.ward,
       }));
     }
-    // demo mosaic
-    const demoStatus = [
-      ...Array(12).fill("strong_lead"),
-      ...Array(10).fill("leading"),
-      ...Array(8).fill("close"),
-      ...Array(6).fill("trailing"),
-      ...Array(12).fill("no_result"),
-    ];
-    return demoStatus.map((s, i) => ({ id: i, status: s, label: `W${i + 1}` }));
+    // No wards configured yet — empty map (no demo tiles)
+    return [];
   }, [wards]);
 
   const color: Record<string, string> = {
@@ -370,6 +282,14 @@ function ResultsMap({ wards }: { wards: MapWard[] }) {
     trailing: "#ef4444",
     no_result: "#334155",
   };
+
+  if (!cells.length) {
+    return (
+      <div className="flex h-full min-h-[180px] items-center justify-center rounded-lg border border-dashed border-slate-700 text-xs text-slate-500">
+        No wards yet — add them under Constituencies
+      </div>
+    );
+  }
 
   return (
     <div className="relative h-full min-h-[180px] w-full overflow-hidden rounded-lg">
@@ -425,7 +345,7 @@ function ResultsMap({ wards }: { wards: MapWard[] }) {
 /* ------------------------------------------------------------------ */
 
 export default function SituationRoomLivePage() {
-  const [data, setData] = useState<LiveData>(DEMO);
+  const [data, setData] = useState<LiveData>(EMPTY_LIVE);
   const [live, setLive] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [clock, setClock] = useState(() => new Date());
@@ -435,57 +355,10 @@ export default function SituationRoomLivePage() {
   >([
     {
       id: 1,
-      role: "Observer",
-      name: "Ward 6 Observer",
-      text: "Results from Unit 009, Central School, Irruekpen\nAPC – 238 | PDP – 115 | LP – 32",
-      time: "04:41 PM",
-      tag: "Observer",
-    },
-    {
-      id: 2,
-      role: "Agent",
-      name: "Owan West Agent",
-      text: "Unit 023, St. Mary School\nAPC – 167 | PDP – 98 | LP – 21",
-      time: "04:40 PM",
-      tag: "Agent",
-    },
-    {
-      id: 3,
-      role: "Admin",
-      name: "Situation Room",
-      text: "Results from Unit 015, Ujaro Primary\nAPC – 214 | PDP – 104 | LP – 26",
-      time: "04:39 PM",
-      tag: "Admin",
-    },
-    {
-      id: 4,
-      role: "Agent",
-      name: "Igueben Youth",
-      text: "Good turnout in Unit 007, Igueben Town!",
-      time: "04:38 PM",
-    },
-    {
-      id: 5,
-      role: "Agent",
-      name: "Ward 2 Agent",
-      text: "Unit 002, Ekpoma College\nAPC – 189 | PDP – 99 | LP – 18",
-      time: "04:37 PM",
-      tag: "Agent",
-    },
-    {
-      id: 6,
-      role: "Volunteer",
-      name: "Volunteer Team",
-      text: "Keep it up everyone! Let's secure every vote.",
-      time: "04:36 PM",
-      tag: "Volunteer",
-    },
-    {
-      id: 7,
       role: "System",
       name: "System",
-      text: "New results received from 12 polling units.",
-      time: "04:34 PM",
+      text: "Live feed connected. Waiting for field reports and verified results…",
+      time: new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
       tag: "Alert",
     },
   ]);
@@ -495,68 +368,31 @@ export default function SituationRoomLivePage() {
       .then((res) => {
         if (!res) return;
 
-        // Always apply live structural numbers from the API so Constituencies /
-        // Wards / PUs show on the command centre even before results arrive.
-        // DEMO is only used as chart filler when there are no verified votes yet.
-        const hasVotes = (res.total_valid_votes ?? 0) > 0 || (res.results_received ?? 0) > 0;
-
-        const partyBreakdown =
-          Array.isArray(res.party_breakdown) && res.party_breakdown.length > 0
-            ? res.party_breakdown
-            : DEMO.party_breakdown;
-        const trend =
-          Array.isArray(res.trend) && res.trend.length > 0 ? res.trend : DEMO.trend;
-        const byLga =
-          Array.isArray(res.results_by_lga) && res.results_by_lga.length > 0
-            ? res.results_by_lga
-            : hasVotes
-              ? []
-              : DEMO.results_by_lga;
-        const topWards =
-          Array.isArray(res.top_wards) && res.top_wards.length > 0
-            ? res.top_wards
-            : hasVotes
-              ? []
-              : DEMO.top_wards;
-        const latest =
-          Array.isArray(res.latest_results) && res.latest_results.length > 0
-            ? res.latest_results
-            : hasVotes
-              ? []
-              : DEMO.latest_results;
-        const incidents =
-          Array.isArray(res.incidents) && res.incidents.length > 0
-            ? res.incidents
-            : DEMO.incidents;
-
         setData({
-          ...DEMO,
-          ...res,
           total_polling_units: Number(res.total_polling_units ?? 0),
           results_received: Number(res.results_received ?? 0),
           percentage_completed: Number(res.percentage_completed ?? 0),
           total_valid_votes: Number(res.total_valid_votes ?? 0),
-          candidate: res.candidate ?? {
-            name: "Lucky Eseigbe",
-            party: "APC",
-            votes: 0,
-            percentage: 0,
-          },
-          other_parties: res.other_parties ?? { votes: 0, percentage: 0 },
-          party_breakdown: hasVotes ? (res.party_breakdown?.length ? res.party_breakdown : []) : partyBreakdown,
-          trend: hasVotes ? (res.trend?.length ? res.trend : []) : trend,
-          results_by_lga: byLga,
-          top_wards: topWards,
-          latest_results: latest,
-          incidents,
+          candidate: res.candidate ?? EMPTY_LIVE.candidate,
+          other_parties: res.other_parties ?? EMPTY_LIVE.other_parties,
+          party_breakdown: Array.isArray(res.party_breakdown) ? res.party_breakdown : [],
+          results_by_lga: Array.isArray(res.results_by_lga) ? res.results_by_lga : [],
+          top_wards: Array.isArray(res.top_wards) ? res.top_wards : [],
           map_wards: Array.isArray(res.map_wards) ? res.map_wards : [],
+          latest_results: Array.isArray(res.latest_results) ? res.latest_results : [],
+          incidents: Array.isArray(res.incidents) ? res.incidents : [],
+          trend: Array.isArray(res.trend) ? res.trend : [],
+          pending_results: Number(res.pending_results ?? 0),
+          flagged_results: Number(res.flagged_results ?? 0),
+          updated_at: res.updated_at ?? new Date().toISOString(),
         });
         setLive(true);
         setError(null);
       })
       .catch((err) => {
-        setError(err instanceof ApiError ? err.message : "Using demo data — connect API for live figures");
+        setError(err instanceof ApiError ? err.message : "Could not load live results");
         setLive(false);
+        // Keep last known live data; do not inject demo figures
       });
   }, []);
 
