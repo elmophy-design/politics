@@ -29,21 +29,18 @@ function AdminShell({ children }: { children: React.ReactNode }) {
     );
   }
 
+  // Sidebar is excluded from theme: always the brand dark nav.
+  // Dark/light mode applies only to the main content column.
   return (
-    <div
-      className={cn(
-        "admin-shell flex h-screen overflow-hidden transition-colors",
-        isDark ? "admin-dark bg-[var(--admin-canvas)]" : "bg-parchment-100"
-      )}
-    >
+    <div className="admin-shell flex h-screen overflow-hidden bg-parchment-100">
       <Sidebar />
       <div
         className={cn(
-          "min-h-0 flex-1 overflow-y-auto transition-colors",
+          "admin-content min-h-0 flex-1 overflow-y-auto transition-colors",
           isLiveSituationRoom
             ? "bg-[#060d1a]"
             : isDark
-              ? "bg-[var(--admin-canvas)] text-[var(--admin-fg)]"
+              ? "admin-dark bg-[var(--admin-canvas)] text-[var(--admin-fg)]"
               : "bg-parchment-100"
         )}
       >
