@@ -167,16 +167,32 @@ class ElectionController extends Controller
      * Full live Situation Room payload for the command-centre dashboard.
      * Only verified results count toward party totals and map status.
      */
-    public function liveDashboard()
+    public function liveDashboard(Request $request)
     {
-        $totalPollingUnits = PollingUnit::count();
-        $verified = ElectionResult::with(['pollingUnit.ward.lga', 'submitter:id,name'])
-            ->where('status', 'verified')
-            ->latest()
-            ->get();
+        $constituencyId = $request->filled('constituency_id') ? $request->integer('constituency_id') : null;
 
-        $pendingCount = ElectionResult::where('status', 'pending')->count();
-        $flaggedCount = ElectionResult::where('status', 'flagged')->count();
+        $puQuery = PollingUnit::query();
+        if ($constituencyId) {
+            $puQuery->whereHas('ward', fn ($q) => $q->where('constituency_id', $constituencyId));
+        }
+        $scopedPuIds = (clone $puQuery)->pluck('id');
+        $totalPollingUnits = $scopedPuIds->count();
+
+        $verifiedQuery = ElectionResult::with(['pollingUnit.ward.lga', 'pollingUnit.ward.constituency', 'submitter:id,name'])
+            ->where('status', 'verified');
+        if ($constituencyId) {
+            $verifiedQuery->whereIn('polling_unit_id', $scopedPuIds);
+        }
+        $verified = $verifiedQuery->latest()->get();
+
+        $pendingQuery = ElectionResult::where('status', 'pending');
+        $flaggedQuery = ElectionResult::where('status', 'flagged');
+        if ($constituencyId) {
+            $pendingQuery->whereIn('polling_unit_id', $scopedPuIds);
+            $flaggedQuery->whereIn('polling_unit_id', $scopedPuIds);
+        }
+        $pendingCount = $pendingQuery->count();
+        $flaggedCount = $flaggedQuery->count();
 
         // Party tally
         $tally = [];
@@ -209,7 +225,11 @@ class ElectionController extends Controller
 
         // Results by LGA
         $byLga = [];
-        $lgaUnits = PollingUnit::with('ward.lga')->get()->groupBy(fn ($pu) => optional(optional($pu->ward)->lga)->name ?? 'Unknown');
+        $lgaPuQuery = PollingUnit::with('ward.lga');
+        if ($constituencyId) {
+            $lgaPuQuery->whereIn('id', $scopedPuIds);
+        }
+        $lgaUnits = $lgaPuQuery->get()->groupBy(fn ($pu) => optional(optional($pu->ward)->lga)->name ?? 'Unknown');
         foreach ($lgaUnits as $lgaName => $units) {
             $unitIds = $units->pluck('id');
             $lgaVerified = $verified->whereIn('polling_unit_id', $unitIds);
@@ -235,7 +255,11 @@ class ElectionController extends Controller
 
         // Top performing wards (by candidate votes)
         $byWard = [];
-        $wardUnits = PollingUnit::with('ward')->get()->groupBy(fn ($pu) => optional($pu->ward)->id);
+        $wardPuQuery = PollingUnit::with('ward');
+        if ($constituencyId) {
+            $wardPuQuery->whereIn('id', $scopedPuIds);
+        }
+        $wardUnits = $wardPuQuery->get()->groupBy(fn ($pu) => optional($pu->ward)->id);
         foreach ($wardUnits as $wardId => $units) {
             if (! $wardId) {
                 continue;
@@ -364,6 +388,7 @@ class ElectionController extends Controller
             'trend' => $trend,
             'pending_results' => $pendingCount,
             'flagged_results' => $flaggedCount,
+            'constituency_id' => $constituencyId,
             'updated_at' => now()->toIso8601String(),
         ]);
     }

@@ -6,11 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Ward extends Model
 {
-    protected $fillable = ['lga_id', 'name', 'code'];
+    protected $fillable = ['lga_id', 'constituency_id', 'name', 'code'];
 
     public function lga()
     {
         return $this->belongsTo(Lga::class);
+    }
+
+    public function constituency()
+    {
+        return $this->belongsTo(Constituency::class);
     }
 
     public function pollingUnits()

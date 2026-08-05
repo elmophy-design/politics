@@ -30,6 +30,8 @@ Route::get('/events', [EventController::class, 'index']);
 Route::get('/events/{event}', [EventController::class, 'show']);
 
 Route::get('/states', [GeographyController::class, 'states']);
+Route::get('/constituencies', [GeographyController::class, 'constituencies']);
+Route::get('/constituencies/{constituency}/tree', [GeographyController::class, 'constituencyTree']);
 Route::get('/wards', [GeographyController::class, 'wards']);
 Route::get('/polling-units', [GeographyController::class, 'pollingUnits']);
 
@@ -109,6 +111,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/situation-room/dashboard/live', [ElectionController::class, 'liveDashboard']);
 
         // Wards & Polling Units setup — feeds the Situation Room, Volunteer Portal, and Constituency Tracker
+        Route::post('/constituencies', [GeographyController::class, 'storeConstituency']);
+        Route::put('/constituencies/{constituency}', [GeographyController::class, 'updateConstituency']);
+        Route::delete('/constituencies/{constituency}', [GeographyController::class, 'destroyConstituency']);
+
         Route::post('/wards', [GeographyController::class, 'storeWard']);
         Route::put('/wards/{ward}', [GeographyController::class, 'updateWard']);
         Route::delete('/wards/{ward}', [GeographyController::class, 'destroyWard']);

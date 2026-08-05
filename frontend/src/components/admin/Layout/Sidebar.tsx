@@ -35,6 +35,7 @@ const navItems: (
     icon: ShieldAlert,
     children: [
       { href: "/admin/situation-room", label: "Live Command Centre" },
+      { href: "/admin/situation-room/constituencies", label: "Constituencies" },
       { href: "/admin/situation-room/results", label: "Results" },
       { href: "/admin/situation-room/incidents", label: "Incidents" },
       { href: "/admin/situation-room/wards", label: "Wards" },
