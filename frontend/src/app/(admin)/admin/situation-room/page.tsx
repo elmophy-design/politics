@@ -876,7 +876,20 @@ export default function SituationRoomLivePage() {
             </form>
           </aside>
         </div>
+
+        {!projector && (
+          <div className="border-t border-slate-800 px-4 py-3">
+            <DrilldownPanel constituencyId={constituencyId} />
+          </div>
+        )}
       </div>
+
+      <PendingQueue
+        open={queueOpen}
+        onClose={() => setQueueOpen(false)}
+        constituencyId={constituencyId}
+        onChanged={load}
+      />
     </div>
   );
 }
@@ -904,18 +917,6 @@ function Kpi({
       <p className="text-[10px] uppercase tracking-wider text-slate-500">{label}</p>
       <p className="mt-1 text-xl font-bold tabular-nums text-white">{value}</p>
       {sub && <p className="mt-0.5 text-[11px] font-medium text-emerald-400">{sub}</p>}
-
-      <PendingQueue
-        open={queueOpen}
-        onClose={() => setQueueOpen(false)}
-        constituencyId={constituencyId}
-        onChanged={load}
-      />
-      {!projector && (
-        <div className="border-t border-slate-800 px-4 py-3">
-          <DrilldownPanel constituencyId={constituencyId} />
-        </div>
-      )}
     </div>
   );
 }
