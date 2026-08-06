@@ -34,4 +34,10 @@ class ElectionResult extends Model
     {
         return $this->belongsTo(User::class, 'verified_by');
     }
+
+    public function audits()
+    {
+        return $this->hasMany(ElectionResultAudit::class);
+    }
 }
+

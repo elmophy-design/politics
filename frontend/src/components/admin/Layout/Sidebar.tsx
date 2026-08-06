@@ -36,9 +36,11 @@ const navItems: (
     icon: ShieldAlert,
     children: [
       { href: "/admin/situation-room", label: "Live Command Centre" },
+      { href: "/admin/situation-room/submit", label: "Submit Result" },
       { href: "/admin/situation-room/constituencies", label: "Constituencies" },
       { href: "/admin/situation-room/results", label: "Results" },
       { href: "/admin/situation-room/incidents", label: "Incidents" },
+      { href: "/admin/situation-room/audit", label: "Audit Log" },
       { href: "/admin/situation-room/wards", label: "Wards" },
       { href: "/admin/situation-room/polling-units", label: "Polling Units" },
     ],

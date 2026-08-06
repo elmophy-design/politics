@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\ElectionResult;
+use App\Models\ElectionResultAudit;
+use App\Events\SituationRoomUpdated;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Incident;
 use App\Models\PollingUnit;
 use App\Models\Ward;
@@ -56,18 +59,45 @@ class ElectionController extends Controller
             'polling_unit_id' => ['required', 'exists:polling_units,id'],
             'party_agent_name' => ['nullable', 'string', 'max:255'],
             'party_votes' => ['required', 'array', 'min:1'],
-            'party_votes.*' => ['required', 'integer', 'min:0'],
+            'party_votes.*' => ['numeric', 'min:0'],
             'total_accredited_voters' => ['nullable', 'integer', 'min:0'],
             'total_votes_cast' => ['nullable', 'integer', 'min:0'],
-            'result_sheet_image' => ['nullable', 'string'],
+            'result_sheet_image' => ['nullable', 'image', 'max:5120'],
         ]);
 
         $validated['submitted_by'] = $request->user()->id;
         $validated['status'] = 'pending';
 
+        if ($request->hasFile('result_sheet_image')) {
+            $validated['result_sheet_image'] = $request->file('result_sheet_image')
+                ->store('result-sheets', 'public');
+        }
+
+        // party_votes may arrive as JSON string when using FormData
+        if (is_string($request->input('party_votes'))) {
+            $decoded = json_decode($request->input('party_votes'), true);
+            if (is_array($decoded)) {
+                $validated['party_votes'] = $decoded;
+            }
+        }
+
         $result = ElectionResult::create($validated);
 
-        return $this->success($result, 'Result submitted for verification', 201);
+        ElectionResultAudit::create([
+            'election_result_id' => $result->id,
+            'user_id' => $request->user()->id,
+            'action' => 'submitted',
+            'from_status' => null,
+            'to_status' => 'pending',
+            'meta' => ['polling_unit_id' => $result->polling_unit_id],
+        ]);
+
+        event(new SituationRoomUpdated('result.submitted', [
+            'result_id' => $result->id,
+            'polling_unit_id' => $result->polling_unit_id,
+        ]));
+
+        return $this->success($result->load('pollingUnit'), 'Result submitted for verification', 201);
     }
 
     /**
@@ -78,7 +108,10 @@ class ElectionController extends Controller
     {
         $validated = $request->validate([
             'status' => ['required', 'in:verified,flagged,rejected'],
+            'note' => ['nullable', 'string', 'max:1000'],
         ]);
+
+        $from = $result->status;
 
         $result->update([
             'status' => $validated['status'],
@@ -86,7 +119,21 @@ class ElectionController extends Controller
             'verified_at' => now(),
         ]);
 
-        return $this->success($result, 'Result status updated');
+        ElectionResultAudit::create([
+            'election_result_id' => $result->id,
+            'user_id' => $request->user()->id,
+            'action' => $validated['status'],
+            'from_status' => $from,
+            'to_status' => $validated['status'],
+            'note' => $validated['note'] ?? null,
+        ]);
+
+        event(new SituationRoomUpdated('result.'.$validated['status'], [
+            'result_id' => $result->id,
+            'status' => $validated['status'],
+        ]));
+
+        return $this->success($result->fresh()->load(['pollingUnit', 'verifier']), 'Result status updated');
     }
 
     // ---------------------------------------------------------------
@@ -123,6 +170,14 @@ class ElectionController extends Controller
         $validated['status'] = 'reported';
 
         $incident = Incident::create($validated);
+
+        if (in_array($incident->severity, ['high', 'critical'], true)) {
+            event(new SituationRoomUpdated('incident.critical', [
+                'incident_id' => $incident->id,
+                'title' => $incident->title,
+                'severity' => $incident->severity,
+            ]));
+        }
 
         return $this->success($incident, 'Incident reported', 201);
     }

@@ -6,7 +6,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class Ward extends Model
 {
-    protected $fillable = ['lga_id', 'constituency_id', 'name', 'code'];
+    protected $fillable = [
+        'lga_id', 'constituency_id', 'name', 'code',
+        'geojson', 'center_lat', 'center_lng',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'geojson' => 'array',
+            'center_lat' => 'float',
+            'center_lng' => 'float',
+        ];
+    }
 
     public function lga()
     {

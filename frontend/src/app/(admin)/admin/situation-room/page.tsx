@@ -10,6 +10,10 @@ import {
 } from "lucide-react";
 import { apiFetch, ApiError } from "@/lib/api/client";
 import { cn } from "@/lib/utils/cn";
+import { LiveToolbar, readStoredConstituencyId } from "@/components/admin/SituationRoom/LiveToolbar";
+import { PendingQueue } from "@/components/admin/SituationRoom/PendingQueue";
+import { DrilldownPanel } from "@/components/admin/SituationRoom/DrilldownPanel";
+import { GeoMap } from "@/components/admin/SituationRoom/GeoMap";
 
 /* ------------------------------------------------------------------ */
 /* Types                                                               */
@@ -429,6 +433,18 @@ function ResultsMap({ wards }: { wards: MapWard[] }) {
 
 export default function SituationRoomLivePage() {
   const [data, setData] = useState<LiveData>(DEMO);
+  const [constituencyId, setConstituencyId] = useState<number | null>(null);
+  const [queueOpen, setQueueOpen] = useState(false);
+  const [projector, setProjector] = useState(false);
+
+  useEffect(() => {
+    setConstituencyId(readStoredConstituencyId());
+  }, []);
+
+  useEffect(() => {
+    document.body.classList.toggle("sr-projector", projector);
+    return () => document.body.classList.remove("sr-projector");
+  }, [projector]);
   const [live, setLive] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [clock, setClock] = useState(() => new Date());
@@ -447,7 +463,8 @@ export default function SituationRoomLivePage() {
   ]);
 
   const load = useCallback(() => {
-    apiFetch<LiveData>("/situation-room/dashboard/live")
+    const q = constituencyId ? `?constituency_id=${constituencyId}` : "";
+    apiFetch<LiveData>(`/situation-room/dashboard/live${q}`)
       .then((res) => {
         if (!res) return;
 
@@ -509,7 +526,7 @@ export default function SituationRoomLivePage() {
         setError(err instanceof ApiError ? err.message : "Showing demo data — API not connected");
         setLive(false);
       });
-  }, []);
+  }, [constituencyId]);
 
   useEffect(() => {
     load();
@@ -534,6 +551,14 @@ export default function SituationRoomLivePage() {
             <span className="rounded bg-slate-800 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-300">
               Live Election Results
             </span>
+            <LiveToolbar
+              constituencyId={constituencyId}
+              onConstituencyChange={setConstituencyId}
+              projector={projector}
+              onProjectorToggle={() => setProjector((p) => !p)}
+              pendingCount={d.pending_results ?? 0}
+              onOpenQueue={() => setQueueOpen(true)}
+            />
             <span className="flex items-center gap-1.5 rounded-full bg-red-600/20 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-red-400 ring-1 ring-red-500/40">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-red-500" />
               LIVE
@@ -634,7 +659,7 @@ export default function SituationRoomLivePage() {
               </Panel>
 
               <Panel title="Results Map">
-                <ResultsMap wards={d.map_wards} />
+                <GeoMap constituencyId={constituencyId} mapWards={d.map_wards} />
               </Panel>
             </div>
 
@@ -879,6 +904,18 @@ function Kpi({
       <p className="text-[10px] uppercase tracking-wider text-slate-500">{label}</p>
       <p className="mt-1 text-xl font-bold tabular-nums text-white">{value}</p>
       {sub && <p className="mt-0.5 text-[11px] font-medium text-emerald-400">{sub}</p>}
+
+      <PendingQueue
+        open={queueOpen}
+        onClose={() => setQueueOpen(false)}
+        constituencyId={constituencyId}
+        onChanged={load}
+      />
+      {!projector && (
+        <div className="border-t border-slate-800 px-4 py-3">
+          <DrilldownPanel constituencyId={constituencyId} />
+        </div>
+      )}
     </div>
   );
 }

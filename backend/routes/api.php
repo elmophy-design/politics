@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\ConstituencyController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\DonationController;
 use App\Http\Controllers\Api\ElectionController;
+use App\Http\Controllers\Api\SituationRoomExtraController;
 use App\Http\Controllers\Api\EventController;
 use App\Http\Controllers\Api\FoundationController;
 use App\Http\Controllers\Api\GeographyController;
@@ -109,6 +110,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/situation-room/dashboard/lga/{lga}', [ElectionController::class, 'lgaDashboard']);
         Route::get('/situation-room/dashboard/constituency', [ElectionController::class, 'constituencyDashboard']);
         Route::get('/situation-room/dashboard/live', [ElectionController::class, 'liveDashboard']);
+        Route::get('/situation-room/pending', [SituationRoomExtraController::class, 'pendingQueue']);
+        Route::get('/situation-room/audit', [SituationRoomExtraController::class, 'auditLog']);
+        Route::get('/situation-room/drilldown', [SituationRoomExtraController::class, 'drilldown']);
+        Route::get('/situation-room/map.geojson', [SituationRoomExtraController::class, 'mapGeoJson']);
+        Route::get('/situation-room/export/results', [SituationRoomExtraController::class, 'exportResults']);
+        Route::get('/situation-room/export/audit', [SituationRoomExtraController::class, 'exportAudit']);
+        Route::get('/situation-room/notifications/critical', [SituationRoomExtraController::class, 'criticalIncidents']);
+        Route::put('/situation-room/wards/{ward}/geojson', [SituationRoomExtraController::class, 'updateWardGeoJson']);
 
         // Wards & Polling Units setup — feeds the Situation Room, Volunteer Portal, and Constituency Tracker
         Route::post('/constituencies', [GeographyController::class, 'storeConstituency']);
