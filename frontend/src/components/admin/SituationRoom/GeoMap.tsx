@@ -123,14 +123,7 @@ export function GeoMap({
         statusByName.get((f.properties?.lga || "").toLowerCase()) ||
         "no_result";
       const g = f.geometry;
-      const polys: number[][][] =
-        g.type === "Polygon"
-          ? [g.coordinates as number[][]]
-          : g.type === "MultiPolygon"
-            ? (g.coordinates as number[][][]).map((p) => p[0] as unknown as number[])
-            : [];
-
-      // normalize: Polygon coordinates is number[][][] (rings), MultiPolygon number[][][][]
+      // Polygon: coordinates[0] = outer ring; MultiPolygon: each poly[0] = outer ring
       let outerRings: [number, number][][] = [];
       if (g.type === "Polygon") {
         outerRings = [(g.coordinates as [number, number][][])[0]];
